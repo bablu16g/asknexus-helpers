@@ -39,7 +39,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
         <p className="text-muted-foreground">
           {type === "login"
             ? `Sign in to continue as ${userType === "student" ? "student" : "expert"}`
-            : `Join as ${userType === "student" ? "student" : "get help with your studies" : "share your knowledge"}`}
+            : `Join as ${userType === "student" ? "student to get help with your studies" : "expert to share your knowledge"}`}
         </p>
       </div>
 

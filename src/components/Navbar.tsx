@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Menu, X } from "lucide-react";
@@ -8,14 +8,36 @@ import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   return (
-    <header className="fixed top-0 w-full z-50 glass-card">
+    <header className={cn(
+      "fixed top-0 w-full z-50 transition-all duration-300",
+      scrolled 
+        ? "glass-card shadow-md py-2" 
+        : "bg-transparent backdrop-blur-sm py-4"
+    )}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="flex flex-col items-center" onClick={() => setIsMenuOpen(false)}>
-              <span className="text-2xl font-bold text-gradient">AskNexus</span>
+            <Link to="/" className="flex flex-col items-center group" onClick={() => setIsMenuOpen(false)}>
+              <span className="text-2xl font-bold text-gradient transition-all duration-300 group-hover:scale-105">AskNexus</span>
               <span className="text-xs text-muted-foreground">Ask. Learn. Succeed</span>
             </Link>
           </div>
@@ -31,12 +53,12 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             <Link to="/student/login">
-              <Button variant="outline" className="rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300">
+              <Button variant="outline" className="rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300 hover:bg-nexus-50 dark:hover:bg-nexus-950/30 transition-colors duration-300">
                 Log In
               </Button>
             </Link>
             <Link to="/student/register">
-              <Button className="rounded-full bg-nexus-500 hover:bg-nexus-600 text-white">
+              <Button className="rounded-full bg-nexus-500 hover:bg-nexus-600 text-white transition-colors duration-300">
                 Sign Up
               </Button>
             </Link>
@@ -49,7 +71,8 @@ export function Navbar() {
               variant="ghost" 
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-foreground"
+              className="text-foreground hover:bg-background/80 transition-colors duration-300"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -60,33 +83,33 @@ export function Navbar() {
       {/* Mobile menu dropdown */}
       <div className={cn(
         "md:hidden transition-all duration-300 ease-in-out overflow-hidden",
-        isMenuOpen ? "max-h-96" : "max-h-0"
+        isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
       )}>
         <div className="px-4 pt-2 pb-6 space-y-2 bg-background/95 backdrop-blur-sm border-t border-border">
           <Link 
             to="/how-it-works" 
-            className="block py-2 text-foreground/80 hover:text-foreground"
+            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >
             How It Works
           </Link>
           <Link 
             to="/subjects" 
-            className="block py-2 text-foreground/80 hover:text-foreground"
+            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >
             Subjects
           </Link>
           <Link 
             to="/pricing" 
-            className="block py-2 text-foreground/80 hover:text-foreground"
+            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >
             Pricing
           </Link>
           <Link 
             to="/about" 
-            className="block py-2 text-foreground/80 hover:text-foreground"
+            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >
             About Us
@@ -99,7 +122,7 @@ export function Navbar() {
             >
               <Button 
                 variant="outline" 
-                className="w-full rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300"
+                className="w-full rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300 transition-colors duration-300"
               >
                 Log In
               </Button>
@@ -110,7 +133,7 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(false)}
             >
               <Button 
-                className="w-full rounded-full bg-nexus-500 hover:bg-nexus-600 text-white"
+                className="w-full rounded-full bg-nexus-500 hover:bg-nexus-600 text-white transition-colors duration-300"
               >
                 Sign Up
               </Button>

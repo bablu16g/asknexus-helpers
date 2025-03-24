@@ -8,6 +8,7 @@ import { PricingSection } from "@/components/PricingSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { AboutSection } from "@/components/AboutSection";
+import { ChatBot } from "@/components/ChatBot";
 
 const Index = () => {
   return (
@@ -23,6 +24,7 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
+      <ChatBot />
     </div>
   );
 };

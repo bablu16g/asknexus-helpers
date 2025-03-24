@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Facebook, Google } from "lucide-react";
+import { Mail, Facebook as FacebookIcon, Chrome } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
           className="w-full flex items-center justify-center gap-2 py-5 border-2"
           onClick={() => console.log("Google auth")}
         >
-          <Google className="h-5 w-5" />
+          <Chrome className="h-5 w-5" />
           <span>Continue with Google</span>
         </Button>
         
@@ -52,7 +52,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
           className="w-full flex items-center justify-center gap-2 py-5 border-2"
           onClick={() => console.log("Facebook auth")}
         >
-          <Facebook className="h-5 w-5" />
+          <FacebookIcon className="h-5 w-5" />
           <span>Continue with Facebook</span>
         </Button>
         

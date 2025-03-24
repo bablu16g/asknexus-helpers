@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Mail, Facebook as FacebookIcon, Chrome } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AuthFormProps {
   type: "login" | "register";
@@ -14,11 +21,12 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [country, setCountry] = useState("");
   const [agreeTos, setAgreeTos] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password, name, agreeTos });
+    console.log({ email, password, name, country, agreeTos });
     // Handle authentication logic here
   };
 
@@ -31,9 +39,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
         <p className="text-muted-foreground">
           {type === "login"
             ? `Sign in to continue as ${userType === "student" ? "student" : "expert"}`
-            : `Join as ${userType === "student" ? "student" : "expert"} to ${
-                userType === "student" ? "get help with your studies" : "share your knowledge"
-              }`}
+            : `Join as ${userType === "student" ? "student" : "get help with your studies" : "share your knowledge"}`}
         </p>
       </div>
 
@@ -99,6 +105,31 @@ export function AuthForm({ type, userType }: AuthFormProps) {
               required
             />
           </div>
+          
+          {type === "register" && (
+            <div>
+              <label htmlFor="country" className="block text-sm font-medium mb-1">
+                Country
+              </label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="india">India</SelectItem>
+                  <SelectItem value="usa">United States</SelectItem>
+                  <SelectItem value="uk">United Kingdom</SelectItem>
+                  <SelectItem value="canada">Canada</SelectItem>
+                  <SelectItem value="australia">Australia</SelectItem>
+                  <SelectItem value="germany">Germany</SelectItem>
+                  <SelectItem value="france">France</SelectItem>
+                  <SelectItem value="japan">Japan</SelectItem>
+                  <SelectItem value="china">China</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           
           <div>
             <label htmlFor="password" className="block text-sm font-medium mb-1">

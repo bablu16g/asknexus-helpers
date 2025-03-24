@@ -11,6 +11,7 @@ import StudentLogin from "./pages/StudentLogin";
 import StudentRegister from "./pages/StudentRegister";
 import ExpertLogin from "./pages/ExpertLogin";
 import ExpertRegister from "./pages/ExpertRegister";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/student/register" element={<StudentRegister />} />
             <Route path="/expert/login" element={<ExpertLogin />} />
             <Route path="/expert/register" element={<ExpertRegister />} />
+            <Route path="/about" element={<About />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

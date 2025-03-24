@@ -14,8 +14,9 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/" className="flex flex-col items-center" onClick={() => setIsMenuOpen(false)}>
               <span className="text-2xl font-bold text-gradient">AskNexus</span>
+              <span className="text-xs text-muted-foreground">Ask. Learn. Succeed</span>
             </Link>
           </div>
 

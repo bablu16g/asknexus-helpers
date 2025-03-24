@@ -17,25 +17,25 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: "Sarah Johnson",
-    role: "Engineering Student",
-    content: "AskNexus has been a lifesaver for my engineering courses. The step-by-step explanations helped me understand complex concepts that my textbook couldn't explain clearly.",
+    name: "Mahesh Yadav",
+    role: "Computer Science Student",
+    content: "AskNexus has been a lifesaver for my programming courses. The step-by-step explanations helped me understand complex concepts that my textbook couldn't explain clearly.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
     type: "student"
   },
   {
     id: 2,
-    name: "David Chen",
-    role: "Chemistry Student",
-    content: "I was struggling with organic chemistry until I found AskNexus. The experts explain every step so well that I finally understand the material instead of just memorizing it.",
+    name: "Ritesh Yadav",
+    role: "Physics Student",
+    content: "I was struggling with quantum physics until I found AskNexus. The experts explain every step so well that I finally understand the material instead of just memorizing it.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
     type: "student"
   },
   {
     id: 3,
-    name: "Dr. Robert Miller",
+    name: "Himanshu Sangwan",
     role: "Mathematics Expert",
     content: "Being an AskNexus expert allows me to help students worldwide while earning from my mathematical expertise. The platform is intuitive and the payment system is reliable.",
     rating: 5,
@@ -44,8 +44,8 @@ const testimonials: Testimonial[] = [
   },
   {
     id: 4,
-    name: "Emily Williams",
-    role: "Physics Student",
+    name: "Pooja",
+    role: "Literature Student",
     content: "Premium membership is worth every penny. I get priority answers when I'm on tight deadlines, and the quality of explanations has significantly improved my grades.",
     rating: 4,
     image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
@@ -53,11 +53,65 @@ const testimonials: Testimonial[] = [
   },
   {
     id: 5,
-    name: "Prof. Lisa Zhang",
-    role: "Computer Science Expert",
-    content: "AskNexus provides a flexible way to use my programming knowledge to help students. The subject tests ensure only qualified experts answer questions, maintaining high quality.",
+    name: "Deepender Sharma",
+    role: "Physics Expert",
+    content: "AskNexus provides a flexible way to use my physics knowledge to help students. The subject tests ensure only qualified experts answer questions, maintaining high quality.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    type: "expert"
+  },
+  {
+    id: 6,
+    name: "Amit",
+    role: "Mathematics Student",
+    content: "The personalized explanations I get on AskNexus have helped me understand calculus in ways my textbook never could. Now I'm confident in solving complex problems.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    type: "student"
+  },
+  {
+    id: 7,
+    name: "Aman Kumar",
+    role: "Computer Science Expert",
+    content: "The platform makes it easy to help students with their programming challenges. I can provide detailed code examples and explanations that truly help them learn.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    type: "expert"
+  },
+  {
+    id: 8,
+    name: "Gaurav",
+    role: "Chemistry Student",
+    content: "AskNexus experts know exactly how to break down complex organic chemistry reactions. I've improved my grades significantly since I started using the platform.",
+    rating: 4,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    type: "student"
+  },
+  {
+    id: 9,
+    name: "Rakhi",
+    role: "Economics Student",
+    content: "The unlimited questions feature on the premium plan has been so worth it. I can get help whenever I'm stuck without worrying about running out of credits.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    type: "student"
+  },
+  {
+    id: 10,
+    name: "Lokesh Yadav",
+    role: "Biology Student",
+    content: "The diagrams and explanations provided by experts have made complex biological processes much easier to understand. I recommend AskNexus to all my classmates.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    type: "student"
+  },
+  {
+    id: 11,
+    name: "Jitender Grewal",
+    role: "Founder & CEO",
+    content: "I created AskNexus with a vision to connect students with experts who can provide personalized academic support. It's incredible to see how it's helping students succeed.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
     type: "expert"
   },
 ];

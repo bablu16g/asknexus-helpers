@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface PlanFeature {
   text: string;
@@ -85,75 +86,82 @@ export function PricingSection() {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <Tabs defaultValue="premium" className="max-w-5xl mx-auto">
+          <TabsList className="grid grid-cols-3 mb-8">
+            <TabsTrigger value="free">Free</TabsTrigger>
+            <TabsTrigger value="premium">Premium</TabsTrigger>
+            <TabsTrigger value="ultimate">Ultimate</TabsTrigger>
+          </TabsList>
+          
           {plans.map((plan) => (
-            <div 
-              key={plan.name}
-              className={cn(
-                "glass-card rounded-2xl overflow-hidden transition-all duration-300",
-                plan.highlighted ? "ring-2 ring-nexus-500 dark:ring-nexus-400" : ""
-              )}
-            >
-              <div className="relative">
-                {plan.badge && (
-                  <div className="absolute top-0 right-0">
-                    <div className="bg-nexus-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                      {plan.badge}
-                    </div>
-                  </div>
+            <TabsContent key={plan.name.toLowerCase()} value={plan.name.toLowerCase()}>
+              <div 
+                className={cn(
+                  "glass-card rounded-2xl overflow-hidden transition-all duration-300",
+                  plan.highlighted ? "ring-2 ring-nexus-500 dark:ring-nexus-400" : ""
                 )}
-                
-                <div className="p-6 text-center">
-                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                  <div className="text-3xl font-bold mb-2">
-                    {plan.price}
-                    <span className="text-sm font-normal text-muted-foreground ml-1">
-                      /month
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    {plan.description}
-                  </p>
+              >
+                <div className="relative">
+                  {plan.badge && (
+                    <div className="absolute top-0 right-0">
+                      <div className="bg-nexus-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                        {plan.badge}
+                      </div>
+                    </div>
+                  )}
                   
-                  <Link to="/student/register" className="block">
-                    <Button 
-                      className={cn(
-                        "w-full rounded-full",
-                        plan.highlighted 
-                          ? "bg-nexus-500 hover:bg-nexus-600 text-white" 
-                          : "bg-secondary hover:bg-secondary/80"
-                      )}
-                    >
-                      {plan.buttonText}
-                    </Button>
-                  </Link>
-                </div>
-                
-                <div className="p-6 pt-0">
-                  <div className="border-t border-border pt-6">
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-start">
-                          <Check 
-                            className={cn(
-                              "h-5 w-5 mr-2 flex-shrink-0",
-                              feature.included 
-                                ? "text-green-500" 
-                                : "text-gray-300 dark:text-gray-600"
-                            )} 
-                          />
-                          <span className={feature.included ? "" : "text-muted-foreground"}>
-                            {feature.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="p-6 text-center">
+                    <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                    <div className="text-3xl font-bold mb-2">
+                      {plan.price}
+                      <span className="text-sm font-normal text-muted-foreground ml-1">
+                        /month
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      {plan.description}
+                    </p>
+                    
+                    <Link to="/student/register" className="block">
+                      <Button 
+                        className={cn(
+                          "w-full rounded-full",
+                          plan.highlighted 
+                            ? "bg-nexus-500 hover:bg-nexus-600 text-white" 
+                            : "bg-secondary hover:bg-secondary/80"
+                        )}
+                      >
+                        {plan.buttonText}
+                      </Button>
+                    </Link>
+                  </div>
+                  
+                  <div className="p-6 pt-0">
+                    <div className="border-t border-border pt-6">
+                      <ul className="space-y-3">
+                        {plan.features.map((feature, index) => (
+                          <li key={index} className="flex items-start">
+                            <Check 
+                              className={cn(
+                                "h-5 w-5 mr-2 flex-shrink-0",
+                                feature.included 
+                                  ? "text-green-500" 
+                                  : "text-gray-300 dark:text-gray-600"
+                              )} 
+                            />
+                            <span className={feature.included ? "" : "text-muted-foreground"}>
+                              {feature.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </TabsContent>
           ))}
-        </div>
+        </Tabs>
         
         <div className="mt-16 text-center">
           <p className="text-sm text-muted-foreground max-w-2xl mx-auto">

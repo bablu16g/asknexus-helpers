@@ -63,6 +63,11 @@ export function Footer() {
                   Browse Subjects
                 </Link>
               </li>
+              <li>
+                <Link to="/faq" className="text-muted-foreground hover:text-foreground transition-colors">
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </div>
           

@@ -17,6 +17,12 @@ import Pricing from "./pages/Pricing";
 import Subjects from "./pages/Subjects";
 import SubjectDetail from "./pages/SubjectDetail";
 import Contact from "./pages/Contact";
+import ExpertTest from "./pages/ExpertTest";
+import ExpertEarnings from "./pages/ExpertEarnings";
+import ExpertFAQ from "./pages/ExpertFAQ";
+import FAQ from "./pages/FAQ";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -33,12 +39,18 @@ const App = () => (
             <Route path="/student/register" element={<StudentRegister />} />
             <Route path="/expert/login" element={<ExpertLogin />} />
             <Route path="/expert/register" element={<ExpertRegister />} />
+            <Route path="/expert/tests" element={<ExpertTest />} />
+            <Route path="/expert/earnings" element={<ExpertEarnings />} />
+            <Route path="/expert/faq" element={<ExpertFAQ />} />
             <Route path="/about" element={<About />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/subjects" element={<Subjects />} />
             <Route path="/subjects/:subjectId" element={<SubjectDetail />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

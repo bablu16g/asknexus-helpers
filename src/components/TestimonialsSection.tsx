@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface Testimonial {
   id: number;
@@ -10,7 +11,7 @@ interface Testimonial {
   role: string;
   content: string;
   rating: number;
-  image: string;
+  image: string | null;
   type: "student" | "expert";
 }
 
@@ -21,7 +22,7 @@ const testimonials: Testimonial[] = [
     role: "Computer Science Student",
     content: "AskNexus has been a lifesaver for my programming courses. The step-by-step explanations helped me understand complex concepts that my textbook couldn't explain clearly.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/029609c8-c9b2-4844-bfcb-5686638b4f6c.png",
     type: "student"
   },
   {
@@ -30,7 +31,7 @@ const testimonials: Testimonial[] = [
     role: "Physics Student",
     content: "I was struggling with quantum physics until I found AskNexus. The experts explain every step so well that I finally understand the material instead of just memorizing it.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: null,
     type: "student"
   },
   {
@@ -39,7 +40,7 @@ const testimonials: Testimonial[] = [
     role: "Mathematics Expert",
     content: "Being an AskNexus expert allows me to help students worldwide while earning from my mathematical expertise. The platform is intuitive and the payment system is reliable.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/0086191e-be02-47d1-a761-638ac8e0baeb.png",
     type: "expert"
   },
   {
@@ -48,7 +49,7 @@ const testimonials: Testimonial[] = [
     role: "Literature Student",
     content: "Premium membership is worth every penny. I get priority answers when I'm on tight deadlines, and the quality of explanations has significantly improved my grades.",
     rating: 4,
-    image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: null,
     type: "student"
   },
   {
@@ -57,7 +58,7 @@ const testimonials: Testimonial[] = [
     role: "Physics Expert",
     content: "AskNexus provides a flexible way to use my physics knowledge to help students. The subject tests ensure only qualified experts answer questions, maintaining high quality.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/121f3894-fff4-45e4-9c46-47dcc0a79e64.png",
     type: "expert"
   },
   {
@@ -66,7 +67,7 @@ const testimonials: Testimonial[] = [
     role: "Mathematics Student",
     content: "The personalized explanations I get on AskNexus have helped me understand calculus in ways my textbook never could. Now I'm confident in solving complex problems.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/8d707bd3-dc20-4275-be5d-de8035eb68d4.png",
     type: "student"
   },
   {
@@ -75,7 +76,7 @@ const testimonials: Testimonial[] = [
     role: "Computer Science Expert",
     content: "The platform makes it easy to help students with their programming challenges. I can provide detailed code examples and explanations that truly help them learn.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/02121a01-b8d3-4879-984f-c4e909d52542.png",
     type: "expert"
   },
   {
@@ -84,7 +85,7 @@ const testimonials: Testimonial[] = [
     role: "Chemistry Student",
     content: "AskNexus experts know exactly how to break down complex organic chemistry reactions. I've improved my grades significantly since I started using the platform.",
     rating: 4,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: null,
     type: "student"
   },
   {
@@ -93,7 +94,7 @@ const testimonials: Testimonial[] = [
     role: "Economics Student",
     content: "The unlimited questions feature on the premium plan has been so worth it. I can get help whenever I'm stuck without worrying about running out of credits.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: null,
     type: "student"
   },
   {
@@ -102,7 +103,7 @@ const testimonials: Testimonial[] = [
     role: "Biology Student",
     content: "The diagrams and explanations provided by experts have made complex biological processes much easier to understand. I recommend AskNexus to all my classmates.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/ebb3ba6d-e5e2-4555-8b17-76810cdb85eb.png",
     type: "student"
   },
   {
@@ -111,7 +112,7 @@ const testimonials: Testimonial[] = [
     role: "Founder & CEO",
     content: "I created AskNexus with a vision to connect students with experts who can provide personalized academic support. It's incredible to see how it's helping students succeed.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    image: "/lovable-uploads/ac667a78-6cba-4490-8a3b-f476cee03945.png",
     type: "expert"
   },
 ];
@@ -165,11 +166,18 @@ export function TestimonialsSection() {
                   )}>
                     <div className="flex justify-center mb-6">
                       <div className="relative">
-                        <img 
-                          src={testimonial.image} 
-                          alt={testimonial.name} 
-                          className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-gray-800"
-                        />
+                        {testimonial.image ? (
+                          <Avatar className="w-20 h-20 border-2 border-white dark:border-gray-800">
+                            <AvatarImage src={testimonial.image} alt={testimonial.name} className="object-cover" />
+                            <AvatarFallback>
+                              {testimonial.name.split(" ").map(n => n[0]).join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg font-medium border-2 border-white dark:border-gray-800">
+                            {testimonial.name.split(" ").map(n => n[0]).join("")}
+                          </div>
+                        )}
                         <div className={cn(
                           "absolute -bottom-2 -right-2 rounded-full p-1",
                           testimonial.type === "student" 

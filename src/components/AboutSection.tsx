@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Mail } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function AboutSection() {
   return (
@@ -16,8 +17,12 @@ export function AboutSection() {
         <div className="glass-card p-8 rounded-xl mb-12">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-bold mb-2">Our Founder</h3>
-            <div className="w-24 h-24 bg-gradient-to-br from-nexus-500 to-expert-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-              JG
+            <div className="w-24 h-24 mx-auto mb-4 overflow-hidden rounded-full">
+              <img 
+                src="/lovable-uploads/ac667a78-6cba-4490-8a3b-f476cee03945.png" 
+                alt="Jitender Grewal" 
+                className="w-full h-full object-cover" 
+              />
             </div>
             <p className="text-xl font-semibold">Jitender Grewal</p>
             <p className="text-muted-foreground">Founder & CEO</p>
@@ -48,18 +53,27 @@ export function AboutSection() {
             <h3 className="text-2xl font-bold mb-6 text-center">Our Star Students</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
-                { name: "Mahesh Yadav", subject: "Computer Science" },
-                { name: "Ritesh Yadav", subject: "Physics" },
-                { name: "Amit", subject: "Mathematics" },
-                { name: "Gaurav", subject: "Chemistry" },
-                { name: "Lokesh Yadav", subject: "Biology" },
-                { name: "Pooja", subject: "Literature" },
-                { name: "Rakhi", subject: "Economics" }
+                { name: "Mahesh Yadav", subject: "Computer Science", image: "/lovable-uploads/029609c8-c9b2-4844-bfcb-5686638b4f6c.png" },
+                { name: "Ritesh Yadav", subject: "Physics", image: null },
+                { name: "Amit", subject: "Mathematics", image: "/lovable-uploads/8d707bd3-dc20-4275-be5d-de8035eb68d4.png" },
+                { name: "Gaurav", subject: "Chemistry", image: null },
+                { name: "Lokesh Yadav", subject: "Biology", image: "/lovable-uploads/ebb3ba6d-e5e2-4555-8b17-76810cdb85eb.png" },
+                { name: "Pooja", subject: "Literature", image: null },
+                { name: "Rakhi", subject: "Economics", image: null }
               ].map((student) => (
                 <div key={student.name} className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-nexus-100 dark:bg-nexus-800 flex items-center justify-center text-nexus-600 dark:text-nexus-300 font-medium">
-                    {student.name.charAt(0)}
-                  </div>
+                  {student.image ? (
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={student.image} alt={student.name} />
+                      <AvatarFallback className="bg-nexus-100 dark:bg-nexus-800 text-nexus-600 dark:text-nexus-300">
+                        {student.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-nexus-100 dark:bg-nexus-800 flex items-center justify-center text-nexus-600 dark:text-nexus-300 font-medium">
+                      {student.name.charAt(0)}
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium">{student.name}</p>
                     <p className="text-sm text-muted-foreground">{student.subject}</p>
@@ -73,14 +87,23 @@ export function AboutSection() {
             <h3 className="text-2xl font-bold mb-6 text-center">Our Top Experts</h3>
             <div className="grid grid-cols-1 gap-6">
               {[
-                { name: "Himanshu Sangwan", expertise: "Mathematics", rating: 4.9 },
-                { name: "Deepender Sharma", expertise: "Physics", rating: 4.8 },
-                { name: "Aman Kumar", expertise: "Computer Science", rating: 4.95 }
+                { name: "Himanshu Sangwan", expertise: "Mathematics", rating: 4.9, image: "/lovable-uploads/0086191e-be02-47d1-a761-638ac8e0baeb.png" },
+                { name: "Deepender Sharma", expertise: "Physics", rating: 4.8, image: "/lovable-uploads/121f3894-fff4-45e4-9c46-47dcc0a79e64.png" },
+                { name: "Aman Kumar", expertise: "Computer Science", rating: 4.95, image: "/lovable-uploads/02121a01-b8d3-4879-984f-c4e909d52542.png" }
               ].map((expert) => (
                 <div key={expert.name} className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-full bg-expert-100 dark:bg-expert-800 flex items-center justify-center text-expert-600 dark:text-expert-300 font-medium text-lg">
-                    {expert.name.split(' ').map(n => n[0]).join('')}
-                  </div>
+                  {expert.image ? (
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={expert.image} alt={expert.name} />
+                      <AvatarFallback className="bg-expert-100 dark:bg-expert-800 text-expert-600 dark:text-expert-300">
+                        {expert.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-expert-100 dark:bg-expert-800 flex items-center justify-center text-expert-600 dark:text-expert-300 font-medium text-lg">
+                      {expert.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium">{expert.name}</p>
                     <p className="text-sm text-muted-foreground">{expert.expertise} Expert</p>

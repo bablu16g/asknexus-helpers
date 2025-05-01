@@ -26,6 +26,10 @@ export function Navbar() {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  const isActive = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
   return (
     <header className={cn(
       "fixed top-0 w-full z-50 transition-all duration-300",
@@ -44,10 +48,10 @@ export function Navbar() {
 
           {/* Desktop menu */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/how-it-works" className="nav-link">How It Works</Link>
-            <Link to="/subjects" className="nav-link">Subjects</Link>
-            <Link to="/pricing" className="nav-link">Pricing</Link>
-            <Link to="/about" className="nav-link">About Us</Link>
+            <Link to="/how-it-works" className={cn("nav-link", isActive("/how-it-works") && "text-nexus-600 dark:text-nexus-400")}>How It Works</Link>
+            <Link to="/subjects" className={cn("nav-link", isActive("/subjects") && "text-nexus-600 dark:text-nexus-400")}>Subjects</Link>
+            <Link to="/pricing" className={cn("nav-link", isActive("/pricing") && "text-nexus-600 dark:text-nexus-400")}>Pricing</Link>
+            <Link to="/about" className={cn("nav-link", isActive("/about") && "text-nexus-600 dark:text-nexus-400")}>About Us</Link>
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -88,28 +92,40 @@ export function Navbar() {
         <div className="px-4 pt-2 pb-6 space-y-2 bg-background/95 backdrop-blur-sm border-t border-border">
           <Link 
             to="/how-it-works" 
-            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn(
+              "block py-2 transition-colors duration-200",
+              isActive("/how-it-works") ? "text-nexus-600 dark:text-nexus-400" : "text-foreground/80 hover:text-foreground"
+            )}
             onClick={() => setIsMenuOpen(false)}
           >
             How It Works
           </Link>
           <Link 
             to="/subjects" 
-            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn(
+              "block py-2 transition-colors duration-200",
+              isActive("/subjects") ? "text-nexus-600 dark:text-nexus-400" : "text-foreground/80 hover:text-foreground"
+            )}
             onClick={() => setIsMenuOpen(false)}
           >
             Subjects
           </Link>
           <Link 
             to="/pricing" 
-            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn(
+              "block py-2 transition-colors duration-200",
+              isActive("/pricing") ? "text-nexus-600 dark:text-nexus-400" : "text-foreground/80 hover:text-foreground"
+            )}
             onClick={() => setIsMenuOpen(false)}
           >
             Pricing
           </Link>
           <Link 
             to="/about" 
-            className="block py-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn(
+              "block py-2 transition-colors duration-200",
+              isActive("/about") ? "text-nexus-600 dark:text-nexus-400" : "text-foreground/80 hover:text-foreground"
+            )}
             onClick={() => setIsMenuOpen(false)}
           >
             About Us

@@ -12,6 +12,10 @@ import StudentRegister from "./pages/StudentRegister";
 import ExpertLogin from "./pages/ExpertLogin";
 import ExpertRegister from "./pages/ExpertRegister";
 import About from "./pages/About";
+import HowItWorks from "./pages/HowItWorks";
+import Pricing from "./pages/Pricing";
+import Subjects from "./pages/Subjects";
+import SubjectDetail from "./pages/SubjectDetail";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +33,10 @@ const App = () => (
             <Route path="/expert/login" element={<ExpertLogin />} />
             <Route path="/expert/register" element={<ExpertRegister />} />
             <Route path="/about" element={<About />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/subjects" element={<Subjects />} />
+            <Route path="/subjects/:subjectId" element={<SubjectDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

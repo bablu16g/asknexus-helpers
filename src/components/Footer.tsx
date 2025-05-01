@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 
 export function Footer() {
   return (
@@ -8,7 +8,14 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <h3 className="text-lg font-semibold mb-4">AskNexus</h3>
+            <div className="flex items-center mb-4">
+              <img 
+                src="/lovable-uploads/1f9406a2-356b-4351-b6a8-86d2b32da5f3.png" 
+                alt="AskNexus Logo" 
+                className="h-8 w-auto mr-2"
+              />
+              <h3 className="text-lg font-semibold">AskNexus</h3>
+            </div>
             <p className="text-sm text-muted-foreground mb-4">
               Connecting students with experts for instant academic help.
             </p>
@@ -91,8 +98,20 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-center space-x-3">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <a href="mailto:asknexus@gmail.com" className="text-muted-foreground hover:text-foreground transition-colors">
+                  asknexus@gmail.com
+                </a>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <a href="tel:7027867847" className="text-muted-foreground hover:text-foreground transition-colors">
+                  (702) 786-7847
+                </a>
+              </li>
               <li>
                 <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
                   Contact Us
@@ -111,11 +130,6 @@ export function Footer() {
               <li>
                 <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                   Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/help" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Help Center
                 </Link>
               </li>
             </ul>

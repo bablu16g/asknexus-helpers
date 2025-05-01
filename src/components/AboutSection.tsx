@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Mail } from "lucide-react";
 
 export function AboutSection() {
   return (
@@ -20,6 +21,12 @@ export function AboutSection() {
             </div>
             <p className="text-xl font-semibold">Jitender Grewal</p>
             <p className="text-muted-foreground">Founder & CEO</p>
+            <div className="flex items-center justify-center mt-2">
+              <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+              <a href="mailto:jitenderguran16@gmail.com" className="text-muted-foreground hover:text-nexus-500 transition-colors">
+                jitenderguran16@gmail.com
+              </a>
+            </div>
           </div>
           
           <div className="max-w-3xl mx-auto">

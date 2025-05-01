@@ -40,9 +40,16 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="flex flex-col items-center group" onClick={() => setIsMenuOpen(false)}>
-              <span className="text-2xl font-bold text-gradient transition-all duration-300 group-hover:scale-105">AskNexus</span>
-              <span className="text-xs text-muted-foreground">Ask. Learn. Succeed</span>
+            <Link to="/" className="flex items-center group" onClick={() => setIsMenuOpen(false)}>
+              <img 
+                src="/lovable-uploads/1f9406a2-356b-4351-b6a8-86d2b32da5f3.png" 
+                alt="AskNexus Logo" 
+                className="h-10 w-auto mr-3 transition-all duration-300 group-hover:scale-105"
+              />
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-gradient transition-all duration-300 group-hover:scale-105">AskNexus</span>
+                <span className="text-xs text-muted-foreground">Ask. Learn. Succeed</span>
+              </div>
             </Link>
           </div>
 
@@ -52,6 +59,7 @@ export function Navbar() {
             <Link to="/subjects" className={cn("nav-link", isActive("/subjects") && "text-nexus-600 dark:text-nexus-400")}>Subjects</Link>
             <Link to="/pricing" className={cn("nav-link", isActive("/pricing") && "text-nexus-600 dark:text-nexus-400")}>Pricing</Link>
             <Link to="/about" className={cn("nav-link", isActive("/about") && "text-nexus-600 dark:text-nexus-400")}>About Us</Link>
+            <Link to="/contact" className={cn("nav-link", isActive("/contact") && "text-nexus-600 dark:text-nexus-400")}>Contact</Link>
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -129,6 +137,16 @@ export function Navbar() {
             onClick={() => setIsMenuOpen(false)}
           >
             About Us
+          </Link>
+          <Link 
+            to="/contact" 
+            className={cn(
+              "block py-2 transition-colors duration-200",
+              isActive("/contact") ? "text-nexus-600 dark:text-nexus-400" : "text-foreground/80 hover:text-foreground"
+            )}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Contact
           </Link>
           <div className="pt-2 flex flex-col space-y-2">
             <Link 

@@ -21,6 +21,8 @@ type AuthContextType = {
   userType: UserType | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userType: UserType, name: string, country: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
 };
@@ -112,6 +114,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      
+      if (error) throw error;
+      
+    } catch (error: any) {
+      console.error("Error signing in with Google:", error);
+      toast({
+        variant: "destructive",
+        title: "Google login failed",
+        description: error.message || "There was an error logging in with Google.",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithFacebook = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      
+      if (error) throw error;
+      
+    } catch (error: any) {
+      console.error("Error signing in with Facebook:", error);
+      toast({
+        variant: "destructive",
+        title: "Facebook login failed",
+        description: error.message || "There was an error logging in with Facebook.",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signUp = async (
     email: string, 
     password: string, 
@@ -136,7 +188,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             first_name: firstName,
             last_name: lastName,
             country: country
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
       
@@ -144,7 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       toast({
         title: "Account created!",
-        description: "Your account has been successfully created.",
+        description: "Please check your email to verify your account.",
       });
     } catch (error: any) {
       console.error("Error signing up:", error);
@@ -191,6 +244,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userType,
     signIn,
     signUp,
+    signInWithGoogle,
+    signInWithFacebook,
     signOut,
     loading
   };

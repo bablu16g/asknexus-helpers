@@ -25,6 +25,7 @@ import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Dashboard from "./pages/Dashboard";
+import AskQuestion from "./pages/AskQuestion";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/ask-question" 
+                element={
+                  <ProtectedRoute requiredUserType="student">
+                    <AskQuestion />
                   </ProtectedRoute>
                 } 
               />

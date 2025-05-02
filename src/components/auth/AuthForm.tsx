@@ -32,7 +32,7 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ type, userType }: AuthFormProps) {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithFacebook } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
@@ -95,24 +95,38 @@ export function AuthForm({ type, userType }: AuthFormProps) {
         values.name,
         values.country
       );
-      navigate("/dashboard");
+      // Not automatically navigating to dashboard as user needs to verify email
     } catch (error) {
       console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   // Google authentication
-  const handleGoogleAuth = () => {
-    console.log("Google auth");
-    // Add Google authentication here
+  const handleGoogleAuth = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithGoogle();
+      // Redirect happens automatically
+    } catch (error) {
+      console.error("Google auth error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Facebook authentication
-  const handleFacebookAuth = () => {
-    console.log("Facebook auth");
-    // Add Facebook authentication here
+  const handleFacebookAuth = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithFacebook();
+      // Redirect happens automatically
+    } catch (error) {
+      console.error("Facebook auth error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

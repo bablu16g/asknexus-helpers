@@ -124,7 +124,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes("provider is not enabled")) {
+          throw new Error("Google authentication is not enabled. Please configure it in the Supabase dashboard.");
+        }
+        throw error;
+      }
       
     } catch (error: any) {
       console.error("Error signing in with Google:", error);
@@ -149,7 +154,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes("provider is not enabled")) {
+          throw new Error("Facebook authentication is not enabled. Please configure it in the Supabase dashboard.");
+        }
+        throw error;
+      }
       
     } catch (error: any) {
       console.error("Error signing in with Facebook:", error);
@@ -179,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
       
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -198,6 +208,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast({
         title: "Account created!",
         description: "Please check your email to verify your account.",
+      });
+      
+      // Email verification message
+      toast({
+        title: "Verification Email Sent",
+        description: "A verification email has been sent to your email address. Please check your inbox and click the verification link to activate your account.",
       });
     } catch (error: any) {
       console.error("Error signing up:", error);

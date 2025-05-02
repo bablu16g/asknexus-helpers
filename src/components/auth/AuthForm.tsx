@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Mail, Facebook as FacebookIcon, Chrome } from "lucide-react";
+import { Mail, Facebook as FacebookIcon, Chrome, AlertCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormMessage 
 } from "@/components/ui/form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -34,6 +35,7 @@ interface AuthFormProps {
 export function AuthForm({ type, userType }: AuthFormProps) {
   const { signIn, signUp, signInWithGoogle, signInWithFacebook } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
   
   // Login form schema
@@ -75,10 +77,12 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   const handleLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
+      setAuthError(null);
       await signIn(values.email, values.password);
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
+      setAuthError(error.message || "There was an error logging in");
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +92,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   const handleRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
     try {
       setIsLoading(true);
+      setAuthError(null);
       await signUp(
         values.email,
         values.password,
@@ -96,8 +101,9 @@ export function AuthForm({ type, userType }: AuthFormProps) {
         values.country
       );
       // Not automatically navigating to dashboard as user needs to verify email
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
+      setAuthError(error.message || "There was an error creating your account");
     } finally {
       setIsLoading(false);
     }
@@ -107,10 +113,12 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   const handleGoogleAuth = async () => {
     try {
       setIsLoading(true);
+      setAuthError(null);
       await signInWithGoogle();
       // Redirect happens automatically
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google auth error:", error);
+      setAuthError(error.message || "There was an error with Google authentication");
     } finally {
       setIsLoading(false);
     }
@@ -120,10 +128,12 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   const handleFacebookAuth = async () => {
     try {
       setIsLoading(true);
+      setAuthError(null);
       await signInWithFacebook();
       // Redirect happens automatically
-    } catch (error) {
+    } catch (error: any) {
       console.error("Facebook auth error:", error);
+      setAuthError(error.message || "There was an error with Facebook authentication");
     } finally {
       setIsLoading(false);
     }
@@ -141,6 +151,14 @@ export function AuthForm({ type, userType }: AuthFormProps) {
             : `Join as ${userType === "student" ? "student to get help with your studies" : "expert to share your knowledge"}`}
         </p>
       </div>
+
+      {authError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{authError}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="space-y-4">
         <Button 

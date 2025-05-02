@@ -25,13 +25,15 @@ export async function createQuestion(
     throw new Error("User not authenticated");
   }
   
-  return supabase.from("questions").insert({
-    title,
-    content,
-    user_id: user.user.id,
-    subject,
-    image_url: imageUrl || null,
-  });
+  return supabase
+    .from("questions")
+    .insert({
+      title,
+      content,
+      user_id: user.user.id,
+      subject,
+      image_url: imageUrl || null,
+    });
 }
 
 export async function getQuestions() {
@@ -39,12 +41,17 @@ export async function getQuestions() {
     .from("questions")
     .select(`
       *,
-      profiles:user_id(*)
+      profiles(*)
     `)
     .order("created_at", { ascending: false });
     
   if (error) throw error;
-  return data as (Question & { profiles: UserProfile })[];
+  
+  // Transform the data to match the expected type
+  return data?.map(item => ({
+    ...item,
+    profile: item.profiles,
+  })) as Question[];
 }
 
 export async function getUserQuestions(userId: string) {
@@ -52,11 +59,16 @@ export async function getUserQuestions(userId: string) {
     .from("questions")
     .select(`
       *,
-      profiles:user_id(*)
+      profiles(*)
     `)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
     
   if (error) throw error;
-  return data as (Question & { profiles: UserProfile })[];
+  
+  // Transform the data to match the expected type
+  return data?.map(item => ({
+    ...item,
+    profile: item.profiles,
+  })) as Question[];
 }

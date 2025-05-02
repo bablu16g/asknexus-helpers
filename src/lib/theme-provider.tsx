@@ -1,10 +1,10 @@
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
 };
@@ -27,6 +27,7 @@ export function ThemeProvider({
   storageKey = "asknexus-theme",
   ...props
 }: ThemeProviderProps) {
+  // Fix: The issue was related to the useState hook not being in the body of a function component
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );

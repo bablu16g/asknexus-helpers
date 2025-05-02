@@ -3,13 +3,23 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
 
   // Handle scroll effect
   useEffect(() => {
@@ -64,21 +74,65 @@ export function Navbar() {
 
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
-            <Link to="/student/login">
-              <Button variant="outline" className="rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300 hover:bg-nexus-50 dark:hover:bg-nexus-950/30 transition-colors duration-300">
-                Log In
-              </Button>
-            </Link>
-            <Link to="/student/register">
-              <Button className="rounded-full bg-nexus-500 hover:bg-nexus-600 text-white transition-colors duration-300">
-                Sign Up
-              </Button>
-            </Link>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="rounded-full h-10 w-10 p-0">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">User menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    {profile?.first_name || user.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
+                  {profile?.user_type === "expert" && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/expert/tests">Tests</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/expert/earnings">Earnings</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/student/login">
+                  <Button variant="outline" className="rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300 hover:bg-nexus-50 dark:hover:bg-nexus-950/30 transition-colors duration-300">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/student/register">
+                  <Button className="rounded-full bg-nexus-500 hover:bg-nexus-600 text-white transition-colors duration-300">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
           <div className="flex md:hidden items-center space-x-2">
             <ThemeToggle />
+            {user && (
+              <Link to="/dashboard">
+                <Button variant="ghost" size="icon" className="text-foreground">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
             <Button 
               variant="ghost" 
               size="icon"
@@ -148,31 +202,76 @@ export function Navbar() {
           >
             Contact
           </Link>
-          <div className="pt-2 flex flex-col space-y-2">
-            <Link 
-              to="/student/login" 
-              className="w-full" 
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <Button 
-                variant="outline" 
-                className="w-full rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300 transition-colors duration-300"
+          
+          {!user && (
+            <div className="pt-2 flex flex-col space-y-2">
+              <Link 
+                to="/student/login" 
+                className="w-full" 
+                onClick={() => setIsMenuOpen(false)}
               >
-                Log In
-              </Button>
-            </Link>
-            <Link 
-              to="/student/register" 
-              className="w-full" 
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <Button 
-                className="w-full rounded-full bg-nexus-500 hover:bg-nexus-600 text-white transition-colors duration-300"
+                <Button 
+                  variant="outline" 
+                  className="w-full rounded-full border-nexus-200 text-nexus-700 dark:border-nexus-800 dark:text-nexus-300 transition-colors duration-300"
+                >
+                  Log In
+                </Button>
+              </Link>
+              <Link 
+                to="/student/register" 
+                className="w-full" 
+                onClick={() => setIsMenuOpen(false)}
               >
-                Sign Up
-              </Button>
-            </Link>
-          </div>
+                <Button 
+                  className="w-full rounded-full bg-nexus-500 hover:bg-nexus-600 text-white transition-colors duration-300"
+                >
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
+          
+          {user && (
+            <>
+              <div className="pt-2 border-t border-border">
+                <Link 
+                  to="/dashboard"
+                  className="block py-2 transition-colors duration-200 text-foreground/80 hover:text-foreground"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                {profile?.user_type === "expert" && (
+                  <>
+                    <Link 
+                      to="/expert/tests"
+                      className="block py-2 transition-colors duration-200 text-foreground/80 hover:text-foreground"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Tests
+                    </Link>
+                    <Link 
+                      to="/expert/earnings"
+                      className="block py-2 transition-colors duration-200 text-foreground/80 hover:text-foreground"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Earnings
+                    </Link>
+                  </>
+                )}
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start px-0 py-2 text-destructive hover:bg-transparent hover:text-destructive/80"
+                  onClick={() => {
+                    signOut();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>

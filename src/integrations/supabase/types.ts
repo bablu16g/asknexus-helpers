@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      expert_profiles: {
+        Row: {
+          country: string | null
+          created_at: string
+          expertise: string[] | null
+          first_name: string | null
+          id: string
+          is_active: boolean | null
+          is_online: boolean | null
+          last_active: string | null
+          last_name: string | null
+          rating: number | null
+          total_earnings: number | null
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          expertise?: string[] | null
+          first_name?: string | null
+          id: string
+          is_active?: boolean | null
+          is_online?: boolean | null
+          last_active?: string | null
+          last_name?: string | null
+          rating?: number | null
+          total_earnings?: number | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          expertise?: string[] | null
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_online?: boolean | null
+          last_active?: string | null
+          last_name?: string | null
+          rating?: number | null
+          total_earnings?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           country: string | null
@@ -36,6 +81,102 @@ export type Database = {
           last_name?: string | null
           updated_at?: string
           user_type?: string
+        }
+        Relationships: []
+      }
+      question_assignments: {
+        Row: {
+          assigned_at: string
+          expert_id: string
+          id: string
+          question_id: string
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          expert_id: string
+          id?: string
+          question_id: string
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          expert_id?: string
+          id?: string
+          question_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_assignments_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "expert_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_assignments_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          subject: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          subject: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          subject?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_profiles: {
+        Row: {
+          country: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, Clock as ClockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -19,7 +19,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, userType } = useAuth();
 
   // Handle scroll effect
   useEffect(() => {
@@ -92,12 +92,12 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard">Dashboard</Link>
                   </DropdownMenuItem>
-                  {profile?.user_type === "student" && (
+                  {userType === "student" && (
                     <DropdownMenuItem asChild>
                       <Link to="/ask-question">Ask Question</Link>
                     </DropdownMenuItem>
                   )}
-                  {profile?.user_type === "expert" && (
+                  {userType === "expert" && (
                     <>
                       <DropdownMenuItem asChild>
                         <Link to="/expert/tests">Tests</Link>
@@ -257,7 +257,7 @@ export function Navbar() {
                 >
                   Dashboard
                 </Link>
-                {profile?.user_type === "student" && (
+                {userType === "student" && (
                   <Link 
                     to="/ask-question"
                     className="block py-2 transition-colors duration-200 text-foreground/80 hover:text-foreground"
@@ -266,7 +266,7 @@ export function Navbar() {
                     Ask Question
                   </Link>
                 )}
-                {profile?.user_type === "expert" && (
+                {userType === "expert" && (
                   <>
                     <Link 
                       to="/expert/tests"

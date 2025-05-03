@@ -24,7 +24,7 @@ export async function createQuestion(
     throw new Error("User not authenticated");
   }
   
-  return supabase
+  const { data, error } = await supabase
     .from("questions")
     .insert({
       title,
@@ -32,7 +32,12 @@ export async function createQuestion(
       user_id: user.user.id,
       subject,
       image_url: imageUrl || null,
-    });
+    })
+    .select();
+    
+  if (error) throw error;
+  
+  return data;
 }
 
 export async function getQuestions() {

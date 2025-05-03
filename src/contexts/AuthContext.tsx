@@ -15,28 +15,30 @@ export type UserProfile = {
   country: string;
 };
 
-type StudentProfile = {
+export type StudentProfile = {
   id: string;
-  first_name: string;
-  last_name: string;
-  country: string;
+  first_name: string | null;
+  last_name: string | null;
+  country: string | null;
   created_at: string;
   updated_at: string;
+  user_type?: UserType; // Added for compatibility with UI
 };
 
-type ExpertProfile = {
+export type ExpertProfile = {
   id: string;
-  first_name: string;
-  last_name: string;
-  country: string;
+  first_name: string | null;
+  last_name: string | null;
+  country: string | null;
   expertise: string[];
-  rating: number;
-  total_earnings: number;
-  is_active: boolean;
-  is_online: boolean;
-  last_active: string;
+  rating: number | null;
+  total_earnings: number | null;
+  is_active: boolean | null;
+  is_online: boolean | null;
+  last_active: string | null;
   created_at: string;
   updated_at: string;
+  user_type?: UserType; // Added for compatibility with UI
 };
 
 type AuthContextType = {
@@ -113,9 +115,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error) throw error;
         
         if (data) {
-          setProfile(data as StudentProfile);
+          const studentProfile = data as StudentProfile;
+          // Add user_type for UI consistency
+          setProfile({
+            ...studentProfile,
+            user_type: 'student'
+          });
           
-          // Redirect to the appropriate dashboard
+          // Redirect to the appropriate dashboard if on login pages
           const currentPath = window.location.pathname;
           if (currentPath === "/student/login" || currentPath === "/student/register" || currentPath === "/") {
             navigate("/dashboard");
@@ -131,9 +138,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error) throw error;
         
         if (data) {
-          setProfile(data as ExpertProfile);
+          const expertProfile = data as ExpertProfile;
+          // Add user_type for UI consistency
+          setProfile({
+            ...expertProfile,
+            user_type: 'expert'
+          });
           
-          // Redirect to the appropriate dashboard
+          // Redirect to the appropriate dashboard if on login pages
           const currentPath = window.location.pathname;
           if (currentPath === "/expert/login" || currentPath === "/expert/register" || currentPath === "/") {
             navigate("/expert/dashboard");

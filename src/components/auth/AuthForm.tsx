@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import OTPVerification from "./OTPVerification";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 const GoogleLogo = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,6 +41,28 @@ const FacebookLogo = () => (
     <path d="M15.1111 0H0.888889C0.4 0 0 0.4 0 0.888889V15.1111C0 15.6 0.4 16 0.888889 16H8.53333V9.77778H6.46667V7.37778H8.53333V5.57778C8.53333 3.51111 9.77778 2.4 11.6444 2.4C12.5333 2.4 13.2889 2.46667 13.5111 2.48889V4.66667H12.2222C11.2 4.66667 11 5.14444 11 5.84444V7.37778H13.4222L13.1111 9.77778H11V16H15.1111C15.6 16 16 15.6 16 15.1111V0.888889C16 0.4 15.6 0 15.1111 0Z" fill="#1877F2"/>
   </svg>
 );
+
+const countryOptions = [
+  { value: "us", label: "United States" },
+  { value: "ca", label: "Canada" },
+  { value: "uk", label: "United Kingdom" },
+  { value: "au", label: "Australia" },
+  { value: "de", label: "Germany" },
+  { value: "fr", label: "France" },
+  { value: "in", label: "India" },
+  { value: "cn", label: "China" },
+  { value: "jp", label: "Japan" },
+  { value: "br", label: "Brazil" },
+  { value: "mx", label: "Mexico" },
+  { value: "za", label: "South Africa" },
+  { value: "ng", label: "Nigeria" },
+  { value: "eg", label: "Egypt" },
+  { value: "sa", label: "Saudi Arabia" },
+  { value: "ae", label: "United Arab Emirates" },
+  { value: "sg", label: "Singapore" },
+  { value: "my", label: "Malaysia" },
+  { value: "other", label: "Other" },
+];
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -55,6 +85,8 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
   
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [currentEmail, setCurrentEmail] = useState("");
+  
+  const navigate = useNavigate();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -106,13 +138,21 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
 
     try {
       if (type === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email: values.email,
           password: values.password,
         });
         
         if (error) {
           setError(error.message);
+        } else {
+          // Redirect to dashboard based on user type
+          if (data.user?.user_metadata?.user_type === "expert") {
+            navigate("/expert/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
+          toast.success("Login successful! Redirecting to dashboard...");
         }
       } else {
         if (values.password !== values.confirmPassword) {
@@ -158,6 +198,11 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
     setSuccess(
       "Your account has been created and email verified. You can now log in."
     );
+    
+    // Redirect to login page
+    setTimeout(() => {
+      navigate(`/${userType}/login`);
+    }, 2000);
   };
   
   const handleOTPCancel = () => {
@@ -329,9 +374,23 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input placeholder="USA" {...field} />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your country" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countryOptions.map((country) => (
+                            <SelectItem key={country.value} value={country.value}>
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

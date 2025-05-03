@@ -1,5 +1,5 @@
 
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
@@ -12,6 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredUserType 
 }) => {
   const { user, userType, loading } = useAuth();
+  const location = useLocation();
 
   // Show loading or spinner while checking authentication
   if (loading) {
@@ -24,12 +25,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If user is not logged in, redirect to login page
   if (!user) {
-    return <Navigate to="/student/login" />;
+    return <Navigate to={requiredUserType === "expert" ? "/expert/login" : "/student/login"} state={{ from: location }} />;
   }
 
   // If a specific user type is required and user doesn't match, redirect
   if (requiredUserType && userType !== requiredUserType) {
-    return <Navigate to={`/${userType}/login`} />;
+    if (userType === "student") {
+      return <Navigate to="/dashboard" />;
+    } else if (userType === "expert") {
+      return <Navigate to="/expert/dashboard" />;
+    } else {
+      return <Navigate to={`/${userType}/login`} />;
+    }
   }
 
   return <>{children}</>;

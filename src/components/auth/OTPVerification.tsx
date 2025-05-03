@@ -109,11 +109,19 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
         toast.error(error.message);
       } else {
         toast.success("Verification code has been resent");
-        setCountdown(600); // Reset the main countdown
+        setCountdown(600); // Reset the main countdown to 10 minutes
       }
     } catch (error) {
       toast.error("Failed to resend verification code");
     }
+  };
+
+  // Handle OTP digit input
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow digits
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    // Limit to 6 digits
+    setOtp(value.slice(0, 6));
   };
 
   return (
@@ -134,8 +142,8 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
             placeholder="000000"
             maxLength={6}
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-            className="text-center text-lg"
+            onChange={handleOtpChange}
+            className="text-center text-lg tracking-widest"
           />
         </div>
         

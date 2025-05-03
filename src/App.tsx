@@ -27,6 +27,7 @@ import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Dashboard from "./pages/Dashboard";
+import ExpertDashboard from "./pages/ExpertDashboard";
 import AskQuestion from "./pages/AskQuestion";
 import MobileApp from "./pages/MobileApp";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -57,8 +58,16 @@ const App = () => (
               <Route 
                 path="/dashboard" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredUserType="student">
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/expert/dashboard" 
+                element={
+                  <ProtectedRoute requiredUserType="expert">
+                    <ExpertDashboard />
                   </ProtectedRoute>
                 } 
               />

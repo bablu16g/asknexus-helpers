@@ -3,9 +3,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export type UserType = "student" | "expert";
+
 export type UserProfile = {
   id: string;
   user_type: UserType;
@@ -14,13 +15,37 @@ export type UserProfile = {
   country: string;
 };
 
+type StudentProfile = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  country: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type ExpertProfile = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  country: string;
+  expertise: string[];
+  rating: number;
+  total_earnings: number;
+  is_active: boolean;
+  is_online: boolean;
+  last_active: string;
+  created_at: string;
+  updated_at: string;
+};
+
 type AuthContextType = {
   session: Session | null;
   user: User | null;
-  profile: UserProfile | null;
+  profile: StudentProfile | ExpertProfile | null;
   userType: UserType | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userType: UserType, name: string, country: string) => Promise<void>;
+  signUp: (email: string, password: string, userType: UserType, firstName: string, lastName: string, country: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -32,7 +57,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<StudentProfile | ExpertProfile | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -46,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (currentSession?.user) {
           setTimeout(() => {
-            fetchUserProfile(currentSession.user.id);
+            fetchUserProfile(currentSession.user);
           }, 0);
         } else {
           setProfile(null);
@@ -61,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(currentSession?.user ?? null);
       
       if (currentSession?.user) {
-        fetchUserProfile(currentSession.user.id);
+        fetchUserProfile(currentSession.user);
       }
       setLoading(false);
     });
@@ -71,43 +96,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (user: User) => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error) throw error;
+      const userMetadata = user.user_metadata;
+      const userType = userMetadata?.user_type || 'student';
+      setUserType(userType as UserType);
       
-      if (data) {
-        setProfile(data as UserProfile);
-        setUserType(data.user_type as UserType);
+      // Fetch the appropriate profile based on user type
+      if (userType === 'student') {
+        const { data, error } = await supabase
+          .from("student_profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+        
+        if (data) {
+          setProfile(data as StudentProfile);
+          
+          // Redirect to the appropriate dashboard
+          const currentPath = window.location.pathname;
+          if (currentPath === "/student/login" || currentPath === "/student/register" || currentPath === "/") {
+            navigate("/dashboard");
+          }
+        }
+      } else if (userType === 'expert') {
+        const { data, error } = await supabase
+          .from("expert_profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+        
+        if (data) {
+          setProfile(data as ExpertProfile);
+          
+          // Redirect to the appropriate dashboard
+          const currentPath = window.location.pathname;
+          if (currentPath === "/expert/login" || currentPath === "/expert/register" || currentPath === "/") {
+            navigate("/expert/dashboard");
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      setProfile(null);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) throw error;
       
-      toast({
-        title: "Welcome back!",
-        description: "You've been successfully logged in.",
-      });
+      // Get the user type from user metadata
+      const userType = data.user?.user_metadata?.user_type || 'student';
+      
+      // Redirect to the appropriate dashboard
+      if (userType === 'expert') {
+        navigate("/expert/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+      
+      toast.success("Welcome back! You've been successfully logged in.");
     } catch (error: any) {
       console.error("Error signing in:", error);
-      toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: error.message || "There was an error logging in.",
-      });
+      toast.error(error.message || "There was an error logging in.");
       throw error;
     } finally {
       setLoading(false);
@@ -120,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
       
@@ -133,11 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } catch (error: any) {
       console.error("Error signing in with Google:", error);
-      toast({
-        variant: "destructive",
-        title: "Google login failed",
-        description: error.message || "There was an error logging in with Google.",
-      });
+      toast.error(error.message || "There was an error logging in with Google.");
       throw error;
     } finally {
       setLoading(false);
@@ -150,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
       
@@ -163,11 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } catch (error: any) {
       console.error("Error signing in with Facebook:", error);
-      toast({
-        variant: "destructive",
-        title: "Facebook login failed",
-        description: error.message || "There was an error logging in with Facebook.",
-      });
+      toast.error(error.message || "There was an error logging in with Facebook.");
       throw error;
     } finally {
       setLoading(false);
@@ -178,16 +229,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string, 
     password: string, 
     userType: UserType, 
-    name: string,
+    firstName: string,
+    lastName: string,
     country: string
   ) => {
     try {
       setLoading(true);
-      
-      // Split name into first and last names
-      const nameParts = name.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
       
       const { error, data } = await supabase.auth.signUp({
         email,
@@ -199,29 +246,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             last_name: lastName,
             country: country
           },
-          emailRedirectTo: `${window.location.origin}/dashboard`
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
       
       if (error) throw error;
       
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
-      });
-      
-      // Email verification message
-      toast({
-        title: "Verification Email Sent",
-        description: "A verification email has been sent to your email address. Please check your inbox and click the verification link to activate your account.",
-      });
+      toast.success("Account created! Please check your email for the verification code.");
     } catch (error: any) {
       console.error("Error signing up:", error);
-      toast({
-        variant: "destructive",
-        title: "Registration failed",
-        description: error.message || "There was an error creating your account.",
-      });
+      toast.error(error.message || "There was an error creating your account.");
       throw error;
     } finally {
       setLoading(false);
@@ -237,17 +271,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       navigate("/");
       
-      toast({
-        title: "Logged out",
-        description: "You've been successfully logged out.",
-      });
+      toast.success("You've been successfully logged out.");
     } catch (error: any) {
       console.error("Error signing out:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "There was an error logging you out.",
-      });
+      toast.error("There was an error logging you out.");
     } finally {
       setLoading(false);
     }

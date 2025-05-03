@@ -68,6 +68,7 @@ export function Navbar() {
             <Link to="/how-it-works" className={cn("nav-link", isActive("/how-it-works") && "text-nexus-600 dark:text-nexus-400")}>How It Works</Link>
             <Link to="/subjects" className={cn("nav-link", isActive("/subjects") && "text-nexus-600 dark:text-nexus-400")}>Subjects</Link>
             <Link to="/pricing" className={cn("nav-link", isActive("/pricing") && "text-nexus-600 dark:text-nexus-400")}>Pricing</Link>
+            <Link to="/mobile-app" className={cn("nav-link", isActive("/mobile-app") && "text-nexus-600 dark:text-nexus-400")}>Mobile App</Link>
             <Link to="/about" className={cn("nav-link", isActive("/about") && "text-nexus-600 dark:text-nexus-400")}>About Us</Link>
             <Link to="/contact" className={cn("nav-link", isActive("/contact") && "text-nexus-600 dark:text-nexus-400")}>Contact</Link>
           </nav>
@@ -91,6 +92,11 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard">Dashboard</Link>
                   </DropdownMenuItem>
+                  {profile?.user_type === "student" && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/ask-question">Ask Question</Link>
+                    </DropdownMenuItem>
+                  )}
                   {profile?.user_type === "expert" && (
                     <>
                       <DropdownMenuItem asChild>
@@ -183,6 +189,16 @@ export function Navbar() {
             Pricing
           </Link>
           <Link 
+            to="/mobile-app" 
+            className={cn(
+              "block py-2 transition-colors duration-200",
+              isActive("/mobile-app") ? "text-nexus-600 dark:text-nexus-400" : "text-foreground/80 hover:text-foreground"
+            )}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Mobile App
+          </Link>
+          <Link 
             to="/about" 
             className={cn(
               "block py-2 transition-colors duration-200",
@@ -241,6 +257,15 @@ export function Navbar() {
                 >
                   Dashboard
                 </Link>
+                {profile?.user_type === "student" && (
+                  <Link 
+                    to="/ask-question"
+                    className="block py-2 transition-colors duration-200 text-foreground/80 hover:text-foreground"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Ask Question
+                  </Link>
+                )}
                 {profile?.user_type === "expert" && (
                   <>
                     <Link 

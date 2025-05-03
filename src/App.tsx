@@ -6,9 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import StudentLogin from "./pages/StudentLogin";
@@ -24,42 +22,20 @@ import Contact from "./pages/Contact";
 import ExpertTest from "./pages/ExpertTest";
 import ExpertEarnings from "./pages/ExpertEarnings";
 import ExpertFAQ from "./pages/ExpertFAQ";
+import ExpertWork from "./pages/ExpertWork";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Dashboard from "./pages/Dashboard";
 import AskQuestion from "./pages/AskQuestion";
+import MobileApp from "./pages/MobileApp";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-// Handle email verification
-const EmailVerificationHandler = () => {
-  useEffect(() => {
-    // Parse the URL fragment to get the access_token
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    const type = params.get("type");
-
-    // If access_token is found and it's a recovery type, handle the verification
-    if (accessToken && type === "recovery") {
-      // Set the session using the tokens
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken || "",
-      }).then(({ data, error }) => {
-        if (error) {
-          console.error("Error setting session:", error);
-          toast.error("There was an error verifying your email.");
-        } else if (data.session) {
-          toast.success("Your email has been verified successfully!");
-        }
-      });
-    }
-  }, []);
-
+// Handle auth redirects
+const AuthRedirectHandler = () => {
+  useAuthRedirect();
   return null;
 };
 
@@ -70,7 +46,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <EmailVerificationHandler />
+          <AuthRedirectHandler />
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -94,6 +70,14 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/expert/work" 
+                element={
+                  <ProtectedRoute requiredUserType="expert">
+                    <ExpertWork />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/expert/tests" element={<ExpertTest />} />
               <Route path="/expert/earnings" element={<ExpertEarnings />} />
               <Route path="/expert/faq" element={<ExpertFAQ />} />
@@ -106,6 +90,7 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/mobile-app" element={<MobileApp />} />
               {/* Catch-all route for email verification redirects */}
               <Route path="/auth/callback" element={<Navigate to="/dashboard" />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

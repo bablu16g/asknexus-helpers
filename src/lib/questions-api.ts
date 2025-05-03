@@ -48,9 +48,9 @@ export async function getQuestions() {
   if (error) throw error;
   
   // Transform the data to match the expected type
-  return data?.map(item => ({
-    ...item,
-    profile: item.profiles,
+  return data?.map(question => ({
+    ...question,
+    profile: question.profiles,
   })) as Question[];
 }
 
@@ -67,8 +67,8 @@ export async function getUserQuestions(userId: string) {
   if (error) throw error;
   
   // Transform the data to match the expected type
-  return data?.map(item => ({
-    ...item,
-    profile: item.profiles,
+  return data?.map(question => ({
+    ...question,
+    profile: question.profiles,
   })) as Question[];
 }

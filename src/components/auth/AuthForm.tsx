@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -64,6 +63,7 @@ const countryOptions = [
   { value: "other", label: "Other" },
 ];
 
+// Updated form schema with correct password validation
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -71,6 +71,14 @@ const formSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   country: z.string().optional(),
+}).refine((data) => {
+  if (data.confirmPassword && data.password !== data.confirmPassword) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
 interface AuthFormProps {

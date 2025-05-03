@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -210,8 +211,8 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
             className="w-full"
             onClick={() => handleSocialLogin("google")}
           >
-            <GoogleLogo className="mr-2 h-4 w-4" />
-            Continue with Google
+            <GoogleLogo />
+            <span className="ml-2">Continue with Google</span>
           </Button>
           <Button
             variant="outline"
@@ -220,8 +221,8 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
             className="w-full"
             onClick={() => handleSocialLogin("facebook")}
           >
-            <FacebookLogo className="mr-2 h-4 w-4" />
-            Continue with Facebook
+            <FacebookLogo />
+            <span className="ml-2">Continue with Facebook</span>
           </Button>
         </div>
 

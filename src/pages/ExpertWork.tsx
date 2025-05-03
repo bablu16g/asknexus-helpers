@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { Layout, BookOpen, DollarSign, History, User, Settings, MessageSquare, Search } from "lucide-react";
+import { Layout, BookOpen, DollarSign, History, User, Settings, MessageSquare, Search, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ExpertWork = () => {

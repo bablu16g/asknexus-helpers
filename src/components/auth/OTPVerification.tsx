@@ -67,7 +67,7 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
       const { error } = await supabase.auth.verifyOtp({
         email,
         token: otp,
-        type: 'email',
+        type: 'signup',
       });
 
       if (error) {

@@ -171,6 +171,8 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
               last_name: values.lastName || "",
               country: values.country || "",
             },
+            // Generate a 6-digit OTP code instead of following a link
+            emailRedirectTo: `${window.location.origin}/auth/callback`
           },
         });
 

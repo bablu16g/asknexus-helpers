@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserRound, GraduationCap } from "lucide-react";
+import { Loader2, UserRound, GraduationCap, Eye, EyeOff } from "lucide-react";
 import OTPVerification from "./OTPVerification";
 import { 
   Select,
@@ -65,10 +65,10 @@ const countryOptions = [
   { value: "other", label: "Other" },
 ];
 
-// Fixed form schema with correct password validation (6 characters minimum)
+// Updated schema with 8 characters minimum for password
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
   confirmPassword: z.string().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -92,6 +92,8 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [currentEmail, setCurrentEmail] = useState("");
@@ -143,6 +145,14 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setError("");
@@ -182,7 +192,6 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
               last_name: values.lastName || "",
               country: values.country || "",
             },
-            // Generate a 6-digit OTP code instead of following a link
             emailRedirectTo: `${window.location.origin}/auth/callback`
           },
         });
@@ -280,21 +289,6 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
-          
-          {/* Enhanced user type indicator */}
-          <div className="p-3 rounded-lg bg-nexus-50 dark:bg-nexus-900/30 border border-nexus-200 dark:border-nexus-800">
-            <span className="font-medium">
-              {selectedUserType === "student" 
-                ? "Student Account" 
-                : "Expert Account"}
-            </span>
-            <p className="text-xs text-muted-foreground mt-1">
-              {selectedUserType === "student"
-                ? "For learners seeking help with academic questions"
-                : "For tutors and specialists who can answer questions"
-              }
-            </p>
-          </div>
         </div>
 
         {error && (
@@ -357,7 +351,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
                     <FormItem>
                       <FormLabel>First name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John" {...field} />
+                        <Input placeholder="Jeet" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -370,7 +364,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
                     <FormItem>
                       <FormLabel>Last name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" {...field} />
+                        <Input placeholder="Grewal" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -385,7 +379,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="john.doe@example.com" {...field} />
+                    <Input placeholder="jeet.grewal@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -407,9 +401,23 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
                       </Link>
                     )}
                   </div>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input 
+                        type={showPassword ? "text" : "password"} 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <Button 
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -422,9 +430,23 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
+                      <div className="relative">
+                        <FormControl>
+                          <Input 
+                            type={showConfirmPassword ? "text" : "password"} 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <Button 
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full"
+                          onClick={toggleConfirmPasswordVisibility}
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

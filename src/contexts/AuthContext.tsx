@@ -1,9 +1,8 @@
-
 import { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthProvider } from "./auth/useAuthProvider";
 import { signIn, signUp, signInWithGoogle, signInWithFacebook, signOut } from "./auth/authService";
-import { AuthContextType } from "./auth/types";
+import { AuthContextType, UserType } from "./auth/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

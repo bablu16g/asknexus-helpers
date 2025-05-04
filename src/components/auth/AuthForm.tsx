@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserRound, GraduationCap } from "lucide-react";
 import OTPVerification from "./OTPVerification";
 import { 
   Select,
@@ -26,6 +26,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const GoogleLogo = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +65,7 @@ const countryOptions = [
   { value: "other", label: "Other" },
 ];
 
-// Updated form schema with correct password validation - fixed the minimum length to 6 characters
+// Fixed form schema with correct password validation (6 characters minimum)
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -94,6 +95,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
   
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [currentEmail, setCurrentEmail] = useState("");
+  const [selectedUserType, setSelectedUserType] = useState<"student" | "expert">(userType);
   
   const navigate = useNavigate();
   
@@ -118,7 +120,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
-            user_type: userType,
+            user_type: selectedUserType,
           },
         },
       });
@@ -175,7 +177,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
           password: values.password,
           options: {
             data: {
-              user_type: userType,
+              user_type: selectedUserType,
               first_name: values.firstName || "",
               last_name: values.lastName || "",
               country: values.country || "",
@@ -212,7 +214,7 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
     
     // Redirect to login page
     setTimeout(() => {
-      navigate(`/${userType}/login`);
+      navigate(`/${selectedUserType}/login`);
     }, 2000);
   };
   
@@ -221,6 +223,20 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
     setSuccess(
       "Your account has been created. Please check your email for a verification link."
     );
+  };
+
+  // Handle user type change and redirect to the appropriate page
+  const handleUserTypeChange = (value: string) => {
+    if (value === "student" || value === "expert") {
+      setSelectedUserType(value);
+      
+      // If we're on a different page than the selected user type, redirect
+      if (type === "login" && value !== userType) {
+        navigate(`/${value}/login`);
+      } else if (type === "register" && value !== userType) {
+        navigate(`/${value}/register`);
+      }
+    }
   };
 
   if (showOTPVerification) {
@@ -240,19 +256,44 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
           <h1 className="text-3xl font-bold mb-2">
             {type === "login" ? "Welcome Back" : "Create Account"}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-4">
             {type === "login"
               ? "Sign in to your account to continue"
-              : `Join as a ${userType}`}
+              : "Join now to get started"}
           </p>
           
-          {/* Added a prominent indicator to show what type of user is registering */}
-          <div className="mt-2 p-2 rounded-md bg-nexus-50 dark:bg-nexus-900/30 border border-nexus-200 dark:border-nexus-800">
+          {/* User type toggle */}
+          <div className="flex justify-center mb-4">
+            <ToggleGroup 
+              type="single" 
+              value={selectedUserType} 
+              onValueChange={handleUserTypeChange}
+              className="border rounded-lg"
+            >
+              <ToggleGroupItem value="student" aria-label="Student Account" className="flex gap-2 items-center px-4">
+                <GraduationCap className="h-4 w-4" />
+                <span>Student</span>
+              </ToggleGroupItem>
+              <ToggleGroupItem value="expert" aria-label="Expert Account" className="flex gap-2 items-center px-4">
+                <UserRound className="h-4 w-4" />
+                <span>Expert</span>
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+          
+          {/* Enhanced user type indicator */}
+          <div className="p-3 rounded-lg bg-nexus-50 dark:bg-nexus-900/30 border border-nexus-200 dark:border-nexus-800">
             <span className="font-medium">
-              {userType === "student" 
+              {selectedUserType === "student" 
                 ? "Student Account" 
                 : "Expert Account"}
             </span>
+            <p className="text-xs text-muted-foreground mt-1">
+              {selectedUserType === "student"
+                ? "For learners seeking help with academic questions"
+                : "For tutors and specialists who can answer questions"
+              }
+            </p>
           </div>
         </div>
 
@@ -444,8 +485,8 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
             <Link
               to={
                 type === "login"
-                  ? `/${userType}/register`
-                  : `/${userType}/login`
+                  ? `/${selectedUserType}/register`
+                  : `/${selectedUserType}/login`
               }
               className="text-nexus-600 hover:underline"
             >
@@ -453,28 +494,6 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
             </Link>
           </p>
         </div>
-
-        {type === "login" && userType === "student" && (
-          <div className="text-center border-t pt-4">
-            <p className="text-sm">
-              Are you an expert?{" "}
-              <Link to="/expert/login" className="text-nexus-600 hover:underline">
-                Expert Login
-              </Link>
-            </p>
-          </div>
-        )}
-
-        {type === "login" && userType === "expert" && (
-          <div className="text-center border-t pt-4">
-            <p className="text-sm">
-              Are you a student?{" "}
-              <Link to="/student/login" className="text-nexus-600 hover:underline">
-                Student Login
-              </Link>
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

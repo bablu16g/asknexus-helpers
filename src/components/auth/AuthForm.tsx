@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -63,7 +64,7 @@ const countryOptions = [
   { value: "other", label: "Other" },
 ];
 
-// Updated form schema with correct password validation
+// Updated form schema with correct password validation - fixed the minimum length to 6 characters
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -242,8 +243,17 @@ export function AuthForm({ type, userType = "student" }: AuthFormProps) {
           <p className="text-muted-foreground">
             {type === "login"
               ? "Sign in to your account to continue"
-              : `Join as a ${userType} to get started`}
+              : `Join as a ${userType}`}
           </p>
+          
+          {/* Added a prominent indicator to show what type of user is registering */}
+          <div className="mt-2 p-2 rounded-md bg-nexus-50 dark:bg-nexus-900/30 border border-nexus-200 dark:border-nexus-800">
+            <span className="font-medium">
+              {userType === "student" 
+                ? "Student Account" 
+                : "Expert Account"}
+            </span>
+          </div>
         </div>
 
         {error && (

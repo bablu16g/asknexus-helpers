@@ -3,15 +3,20 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
-import { ArrowRight, BookOpen, Clock, FileText, Image, SendHorizontal, ThumbsUp } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, FileText, Image, SendHorizontal, ThumbsUp, Star, Calendar, Bell, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getQuestions, Question } from "@/lib/questions-api";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 const StudentDashboard = () => {
+  const { profile } = useAuth();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -32,325 +37,240 @@ const StudentDashboard = () => {
   
   return (
     <div className="space-y-6">
-      <div className="glass-card p-6 rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Welcome to AskNexus!</h2>
-        <p className="text-muted-foreground mb-4">Expert help combined with AI, available 24/7.</p>
-        
-        <div className="relative">
-          <Input 
-            placeholder="What would you like help with today?"
-            className="w-full pr-12 h-12 text-base"
-          />
-          <Button 
-            className="absolute right-1 top-1 rounded-full h-10 w-10 p-0" 
-            size="icon"
-          >
-            <SendHorizontal className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-      
+      {/* Welcome Card */}
+      <Card className="bg-gradient-to-r from-nexus-600/90 to-nexus-700 text-white">
+        <CardContent className="p-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h1 className="text-3xl font-bold">Welcome back, {profile?.first_name || "Student"}!</h1>
+              <p className="mt-2 text-white/80">Get instant help with your questions and assignments.</p>
+            </div>
+            <Button className="bg-white text-nexus-700 hover:bg-white/90 hover:text-nexus-800" asChild>
+              <Link to="/ask-question">
+                Ask a New Question
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="hover:shadow-md transition-all duration-300">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-nexus-600" />
+            <CardTitle className="flex items-center gap-2 text-nexus-600">
+              <FileText className="h-5 w-5" />
               <span>100+ million</span>
             </CardTitle>
             <CardDescription>Expert solutions</CardDescription>
           </CardHeader>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-nexus-600" />
-              <span>Save time</span>
-            </CardTitle>
-            <CardDescription>Quick solutions for study questions</CardDescription>
-          </CardHeader>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-nexus-600" />
-              <span>Subject experts</span>
-            </CardTitle>
-            <CardDescription>Math, science, programming & more</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-      
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Recent Questions</h2>
-        <Link to="/ask-question">
-          <Button>
-            Ask a Question
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-      </div>
-      
-      {isLoading ? (
-        <div className="text-center py-8">Loading questions...</div>
-      ) : questions.length > 0 ? (
-        <div className="space-y-4">
-          {questions.map((question) => (
-            <Card key={question.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{question.title}</CardTitle>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(question.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-                <CardDescription className="line-clamp-2">{question.content}</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-muted-foreground">
-                    Subject: {question.subject}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {question.image_url && (
-                      <Image className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-muted-foreground mb-4">You haven't asked any questions yet.</p>
-            <Link to="/ask-question">
-              <Button>Ask Your First Question</Button>
-            </Link>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Access our vast library of expert-verified solutions to learn faster
+            </p>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
-};
-
-const ExpertDashboard = () => {
-  return (
-    <div className="space-y-6">
-      <Tabs defaultValue="dashboard">
-        <TabsList className="mb-6">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="my-work">My Work</TabsTrigger>
-          <TabsTrigger value="earnings">Earnings</TabsTrigger>
-        </TabsList>
         
-        <TabsContent value="dashboard" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Select subjects for tutoring</CardTitle>
-              <CardDescription>
-                The available questions are shown next to each subject. First-come, first-serve.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <input type="checkbox" id="all-subjects" className="mr-2" />
-                  <label htmlFor="all-subjects">All subjects</label>
-                </div>
-                
-                <div className="space-y-2 ml-4">
-                  <div className="flex items-center">
-                    <input type="checkbox" id="computer-science" className="mr-2" />
-                    <label htmlFor="computer-science">Computer Science</label>
-                  </div>
-                  
-                  <div className="flex items-center ml-4">
-                    <input type="checkbox" id="computer-science-other" className="mr-2" />
-                    <label htmlFor="computer-science-other">Computer Science - Other (10)</label>
-                  </div>
-                </div>
-                
-                <Button className="mt-4 w-full sm:w-auto">Start tutoring</Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Earnings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground">Pending</div>
-                    <div className="text-3xl font-bold text-nexus-600">$27.50</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground">Available</div>
-                    <div className="text-3xl font-bold">$0.00</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Helpful rate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <ThumbsUp className="h-5 w-5 text-nexus-600" />
-                  <span className="text-3xl font-bold">66%</span>
-                </div>
-              </CardContent>
-            </Card>
+        <Card className="hover:shadow-md transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-nexus-600">
+              <Clock className="h-5 w-5" />
+              <span>24/7 Support</span>
+            </CardTitle>
+            <CardDescription>Quick solutions anytime</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Get answers to your questions within hours, any time of day or night
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-md transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-nexus-600">
+              <BookOpen className="h-5 w-5" />
+              <span>Verified Experts</span>
+            </CardTitle>
+            <CardDescription>Learn from the best</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Our subject matter experts have been rigorously vetted and tested
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="md:w-2/3 space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold">Your Questions</h2>
+            <Link to="/ask-question">
+              <Button variant="outline">
+                Ask a Question
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Clarification requests</CardTitle>
-              <CardDescription>No pending clarification requests</CardDescription>
-            </CardHeader>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="my-work">
-          <Card>
-            <CardHeader>
-              <CardTitle>Helpful rate by subject</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div>1. Computer Science</div>
-                  <div>60%</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Be a helpful tutor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-nexus-600">
-                <div>Tutoring best practices</div>
-                <div>Examples of High-quality Solutions</div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="earnings">
-          <div className="space-y-6">
-            <div className="text-3xl font-bold">My Rewards</div>
-            
-            <Tabs defaultValue="tutor-earnings">
-              <TabsList>
-                <TabsTrigger value="upload-rewards">Upload-for-Access Rewards</TabsTrigger>
-                <TabsTrigger value="other-rewards">Other Rewards</TabsTrigger>
-                <TabsTrigger value="tutor-earnings">Tutor Earnings</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="tutor-earnings" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>What are Tutor Earnings?</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="mb-4">Answer students' questions and earn money.</p>
-                      <Button>Browse Questions</Button>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Money Earned</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>Total Lifetime Earnings:</span>
-                          <span>$133.00</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Current Available Cash:</span>
-                          <span>$0.00</span>
-                        </div>
+          {isLoading ? (
+            <Card>
+              <CardContent className="p-8 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-nexus-600"></div>
+              </CardContent>
+            </Card>
+          ) : questions.length > 0 ? (
+            <div className="space-y-4">
+              {questions.map((question) => (
+                <Card key={question.id} className="hover:shadow-md transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg">{question.title}</CardTitle>
+                        <Badge variant="outline" className="font-normal">
+                          {question.subject}
+                        </Badge>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <Card className="mt-6">
-                  <CardHeader>
-                    <CardTitle>Pending earnings</CardTitle>
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(question.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="text-left">
-                            <th className="pb-2">ID</th>
-                            <th className="pb-2">Date</th>
-                            <th className="pb-2">Title</th>
-                            <th className="pb-2">Action</th>
-                            <th className="pb-2">Earnings</th>
-                            <th className="pb-2">Cashed Out</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="py-2">31783822</td>
-                            <td>05/15/25</td>
-                            <td>Please see attachments for details</td>
-                            <td>Question Answer</td>
-                            <td>$2.50</td>
-                            <td>Unpaid</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2">31783823</td>
-                            <td>05/15/25</td>
-                            <td>Please see attachments for details</td>
-                            <td>Complexity Bonus</td>
-                            <td>$2.00</td>
-                            <td>Unpaid</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <p className="line-clamp-2 text-muted-foreground mb-3">{question.content}</p>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          Math.random() > 0.5 ? "bg-green-500" : "bg-amber-500"
+                        )}></div>
+                        {Math.random() > 0.5 ? "Expert working on it" : "Waiting for an expert"}
+                      </div>
+                      {question.image_url && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Image className="h-3 w-3" />
+                          <span>Has attachment</span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed border-2">
+              <CardContent className="text-center py-12">
+                <div className="flex flex-col items-center gap-3 mb-6">
+                  <div className="bg-nexus-50 p-3 rounded-full">
+                    <FileText className="h-8 w-8 text-nexus-600" />
+                  </div>
+                  <p className="text-lg font-medium">No questions yet</p>
+                  <p className="text-muted-foreground max-w-sm">
+                    Ask your first question and get help from our verified experts
+                  </p>
+                </div>
+                <Link to="/ask-question">
+                  <Button size="lg">Ask Your First Question</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        
+        <div className="md:w-1/3 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Study Plan</CardTitle>
+              <CardDescription>Your upcoming study tasks</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <div className="font-medium">Weekly goal</div>
+                  <div>3/5 hours</div>
+                </div>
+                <Progress value={60} className="h-2" />
+              </div>
               
-              <TabsContent value="upload-rewards">
-                <Card className="mt-6">
-                  <CardContent className="text-center py-8">
-                    <p className="text-muted-foreground mb-4">Upload documents to earn rewards</p>
-                    <Button>Upload Documents</Button>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="other-rewards">
-                <Card className="mt-6">
-                  <CardContent className="text-center py-8">
-                    <p className="text-muted-foreground mb-4">Earn rewards through other activities</p>
-                    <Button>Explore Opportunities</Button>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </TabsContent>
-      </Tabs>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Calendar className="h-4 w-4 text-nexus-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Physics homework</p>
+                    <p className="text-sm text-muted-foreground">Due tomorrow</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <BookOpen className="h-4 w-4 text-nexus-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Chemistry quiz</p>
+                    <p className="text-sm text-muted-foreground">Friday, 2:00 PM</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full" size="sm">
+                View All Tasks
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Top Experts</CardTitle>
+              <CardDescription>Highest rated in your subjects</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { name: "Dr. Sharma", subject: "Physics", rating: 4.9 },
+                  { name: "Prof. Williams", subject: "Mathematics", rating: 4.8 },
+                  { name: "Dr. Chen", subject: "Chemistry", rating: 4.7 },
+                ].map((expert, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarFallback className="bg-nexus-100 text-nexus-800">
+                        {expert.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="font-medium">{expert.name}</div>
+                      <div className="text-sm text-muted-foreground">{expert.subject}</div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                      <span className="text-sm font-medium">{expert.rating}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Notifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div className="flex gap-3 items-start">
+                <Bell className="h-4 w-4 text-nexus-600 mt-0.5" />
+                <p>Your question "How to solve quadratic equations" has received an answer.</p>
+              </div>
+              <div className="flex gap-3 items-start">
+                <AlertCircle className="h-4 w-4 text-nexus-600 mt-0.5" />
+                <p>Remember to complete your profile to get personalized help.</p>
+              </div>
+              <div className="flex gap-3 items-start">
+                <Bell className="h-4 w-4 text-nexus-600 mt-0.5" />
+                <p>New resources available for your Biology course.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
@@ -360,18 +280,30 @@ const Dashboard = () => {
   const userType = profile?.user_type || "student";
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main className="container mx-auto px-4 py-20 pt-36">
         <div className="glass-card max-w-7xl mx-auto p-8 rounded-2xl">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">
-              Welcome, {profile?.first_name || "User"}!
-            </h1>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback className="bg-nexus-100 text-nexus-800">
+                  {profile?.first_name?.[0] || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {profile?.first_name || "User"}'s Dashboard
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
+            </div>
             <Button variant="outline" onClick={signOut}>Sign Out</Button>
           </div>
           
-          {userType === "expert" ? <ExpertDashboard /> : <StudentDashboard />}
+          <StudentDashboard />
         </div>
       </main>
       <Footer />

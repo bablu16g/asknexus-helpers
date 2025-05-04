@@ -1,522 +1,347 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/integrations/supabase/client";
-
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserRound, GraduationCap, Eye, EyeOff } from "lucide-react";
-import OTPVerification from "./OTPVerification";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { toast } from "sonner";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
-const GoogleLogo = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15.545 6.558C15.6392 7.03733 15.6833 7.52133 15.6833 8C15.6833 8.47867 15.6392 8.96267 15.545 9.442H8.16667V6.558H12.3092C12.1208 5.91467 11.7233 5.36667 11.1642 4.97867L13.6325 3.16133C14.8283 4.29267 15.545 6.00933 15.545 8V6.558Z" fill="#4285F4"/>
-    <path d="M8.16686 16C10.3669 16 12.2169 15.2667 13.6327 13.9887L11.1644 12.1713C10.4402 12.64 9.43619 13 8.16686 13C6.05352 13 4.27686 11.5887 3.63686 9.66667L1.09619 11.5333C2.49086 14.2533 5.05219 16 8.16686 16Z" fill="#34A853"/>
-    <path d="M3.63667 9.66733C3.48333 9.18867 3.4 8.604 3.4 8C3.4 7.39733 3.48333 6.812 3.63667 6.33333L1.096 4.46667C0.578667 5.54533 0.283333 6.74267 0.283333 8C0.283333 9.25733 0.578667 10.4547 1.096 11.5333L3.63667 9.66733Z" fill="#FBBC05"/>
-    <path d="M8.16686 3C9.36819 3 10.4535 3.414 11.2962 4.22L13.4975 2C12.2169 0.76 10.367 0 8.16686 0C5.05219 0 2.49086 1.74667 1.09619 4.46667L3.63686 6.33333C4.27686 4.41133 6.05352 3 8.16686 3Z" fill="#EA4335"/>
-  </svg>
-);
-
-const FacebookLogo = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15.1111 0H0.888889C0.4 0 0 0.4 0 0.888889V15.1111C0 15.6 0.4 16 0.888889 16H8.53333V9.77778H6.46667V7.37778H8.53333V5.57778C8.53333 3.51111 9.77778 2.4 11.6444 2.4C12.5333 2.4 13.2889 2.46667 13.5111 2.48889V4.66667H12.2222C11.2 4.66667 11 5.14444 11 5.84444V7.37778H13.4222L13.1111 9.77778H11V16H15.1111C15.6 16 16 15.6 16 15.1111V0.888889C16 0.4 15.6 0 15.1111 0Z" fill="#1877F2"/>
-  </svg>
-);
-
-const countryOptions = [
-  { value: "us", label: "United States" },
-  { value: "ca", label: "Canada" },
-  { value: "uk", label: "United Kingdom" },
-  { value: "au", label: "Australia" },
-  { value: "de", label: "Germany" },
-  { value: "fr", label: "France" },
-  { value: "in", label: "India" },
-  { value: "cn", label: "China" },
-  { value: "jp", label: "Japan" },
-  { value: "br", label: "Brazil" },
-  { value: "mx", label: "Mexico" },
-  { value: "za", label: "South Africa" },
-  { value: "ng", label: "Nigeria" },
-  { value: "eg", label: "Egypt" },
-  { value: "sa", label: "Saudi Arabia" },
-  { value: "ae", label: "United Arab Emirates" },
-  { value: "sg", label: "Singapore" },
-  { value: "my", label: "Malaysia" },
-  { value: "other", label: "Other" },
-];
-
-// Updated schema with 8 characters minimum for password
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-  confirmPassword: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  country: z.string().optional(),
-}).refine((data) => {
-  if (data.confirmPassword && data.password !== data.confirmPassword) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth, UserType } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, Loader } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 interface AuthFormProps {
   type: "login" | "register";
-  userType?: "student" | "expert";
+  userType: UserType;
 }
 
-export function AuthForm({ type, userType = "student" }: AuthFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+const loginSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+});
+
+const registerSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  country: z.string().min(1, { message: "Country is required" }),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
+export const AuthForm = ({ type, userType }: AuthFormProps) => {
+  const { signIn, signUp, signInWithGoogle, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  const [showOTPVerification, setShowOTPVerification] = useState(false);
-  const [currentEmail, setCurrentEmail] = useState("");
-  const [selectedUserType, setSelectedUserType] = useState<"student" | "expert">(userType);
-  
-  const navigate = useNavigate();
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+
+  const loginForm = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: "",
+    },
+  });
+
+  const registerForm = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
       firstName: "",
       lastName: "",
       country: "",
     },
   });
-  
-  const handleSocialLogin = async (provider: "google" | "facebook") => {
-    setIsLoading(true);
-    setError("");
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            user_type: selectedUserType,
-          },
-        },
-      });
 
-      if (error) {
-        if (error.message.includes("provider is not enabled")) {
-          setError(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login is not enabled. Please contact an administrator to enable this feature.`);
-        } else {
-          setError(error.message);
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const onLoginSubmit = async (data: LoginFormValues) => {
+    await signIn(data.email, data.password);
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      if (type === "login") {
-        const { error, data } = await supabase.auth.signInWithPassword({
-          email: values.email,
-          password: values.password,
-        });
-        
-        if (error) {
-          setError(error.message);
-        } else {
-          // Redirect to dashboard based on user type
-          if (data.user?.user_metadata?.user_type === "expert") {
-            navigate("/expert/dashboard");
-          } else {
-            navigate("/dashboard");
-          }
-          toast.success("Login successful! Redirecting to dashboard...");
-        }
-      } else {
-        if (values.password !== values.confirmPassword) {
-          setError("Passwords do not match");
-          setIsLoading(false);
-          return;
-        }
-
-        const { error } = await supabase.auth.signUp({
-          email: values.email,
-          password: values.password,
-          options: {
-            data: {
-              user_type: selectedUserType,
-              first_name: values.firstName || "",
-              last_name: values.lastName || "",
-              country: values.country || "",
-            },
-            emailRedirectTo: `${window.location.origin}/auth/callback`
-          },
-        });
-
-        if (error) {
-          setError(error.message);
-        } else {
-          // Show OTP verification instead of success message
-          setCurrentEmail(values.email);
-          setShowOTPVerification(true);
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOTPSuccess = () => {
-    setShowOTPVerification(false);
-    setSuccess(
-      "Your account has been created and email verified. You can now log in."
-    );
-    
-    // Redirect to login page
-    setTimeout(() => {
-      navigate(`/${selectedUserType}/login`);
-    }, 2000);
-  };
-  
-  const handleOTPCancel = () => {
-    setShowOTPVerification(false);
-    setSuccess(
-      "Your account has been created. Please check your email for a verification link."
+  const onRegisterSubmit = async (data: RegisterFormValues) => {
+    await signUp(
+      data.email,
+      data.password,
+      userType,
+      data.firstName,
+      data.lastName,
+      data.country
     );
   };
 
-  // Handle user type change and redirect to the appropriate page
-  const handleUserTypeChange = (value: string) => {
-    if (value === "student" || value === "expert") {
-      setSelectedUserType(value);
-      
-      // If we're on a different page than the selected user type, redirect
-      if (type === "login" && value !== userType) {
-        navigate(`/${value}/login`);
-      } else if (type === "register" && value !== userType) {
-        navigate(`/${value}/register`);
-      }
-    }
-  };
-
-  if (showOTPVerification) {
-    return (
-      <OTPVerification 
-        email={currentEmail}
-        onSuccess={handleOTPSuccess}
-        onCancel={handleOTPCancel}
-      />
-    );
-  }
+  const countries = [
+    "United States",
+    "United Kingdom",
+    "Canada",
+    "Australia",
+    "Germany",
+    "France",
+    "India",
+    "Japan",
+    "China",
+    "Brazil",
+    "South Africa",
+  ].sort();
 
   return (
-    <div>
-      <div className="flex flex-col space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">
-            {type === "login" ? "Welcome Back" : "Create Account"}
-          </h1>
-          <p className="text-muted-foreground mb-4">
-            {type === "login"
-              ? "Sign in to your account to continue"
-              : "Join now to get started"}
-          </p>
-          
-          {/* User type toggle */}
-          <div className="flex justify-center mb-4">
-            <ToggleGroup 
-              type="single" 
-              value={selectedUserType} 
-              onValueChange={handleUserTypeChange}
-              className="border rounded-lg"
+    <>
+      <h2 className="text-2xl font-bold text-center mb-6">
+        {type === "login" ? "Welcome back!" : "Create an account"}
+      </h2>
+      <div className="mb-4">
+        <Tabs defaultValue={userType} className="w-full">
+          <TabsList className="grid grid-cols-2 mb-4">
+            <TabsTrigger
+              value="student"
+              className={cn(
+                userType === "student" ? "font-semibold" : "text-muted-foreground"
+              )}
+              asChild
             >
-              <ToggleGroupItem value="student" aria-label="Student Account" className="flex gap-2 items-center px-4">
-                <GraduationCap className="h-4 w-4" />
-                <span>Student</span>
-              </ToggleGroupItem>
-              <ToggleGroupItem value="expert" aria-label="Expert Account" className="flex gap-2 items-center px-4">
-                <UserRound className="h-4 w-4" />
-                <span>Expert</span>
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-        </div>
+              <Link to={type === "login" ? "/student/login" : "/student/register"}>
+                Student
+              </Link>
+            </TabsTrigger>
+            <TabsTrigger
+              value="expert"
+              className={cn(
+                userType === "expert" ? "font-semibold" : "text-muted-foreground"
+              )}
+              asChild
+            >
+              <Link to={type === "login" ? "/expert/login" : "/expert/register"}>
+                Expert
+              </Link>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-        {error && (
-          <div className="p-3 bg-destructive/10 border border-destructive text-destructive rounded-md text-sm">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="p-3 bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-900 dark:text-green-400 rounded-md text-sm">
-            {success}
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <Button
-            variant="outline"
-            type="button"
-            disabled={isLoading}
-            className="w-full"
-            onClick={() => handleSocialLogin("google")}
-          >
-            <GoogleLogo />
-            <span className="ml-2">Continue with Google</span>
-          </Button>
-          <Button
-            variant="outline"
-            type="button"
-            disabled={isLoading}
-            className="w-full"
-            onClick={() => handleSocialLogin("facebook")}
-          >
-            <FacebookLogo />
-            <span className="ml-2">Continue with Facebook</span>
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            {type === "register" && (
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Jeet" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Grewal" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
+      {type === "login" ? (
+        <Form {...loginForm}>
+          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
             <FormField
-              control={form.control}
+              control={loginForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="jeet.grewal@example.com" {...field} />
+                    <Input placeholder="Enter your email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              control={form.control}
+              control={loginForm.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex justify-between items-center">
-                    <FormLabel>Password</FormLabel>
-                    {type === "login" && (
-                      <Link
-                        to="/forgot-password"
-                        className="text-sm text-nexus-600 hover:underline"
-                      >
-                        Forgot password?
-                      </Link>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <FormControl>
-                      <Input 
-                        type={showPassword ? "text" : "password"} 
-                        {...field} 
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        {...field}
                       />
-                    </FormControl>
-                    <Button 
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <div className="text-right text-sm mt-1">
+                    <Link to="/forgot-password" className="hover:underline text-nexus-600">
+                      Forgot password?
+                    </Link>
                   </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {type === "register" && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <div className="relative">
-                        <FormControl>
-                          <Input 
-                            type={showConfirmPassword ? "text" : "password"} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <Button 
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full"
-                          onClick={toggleConfirmPasswordVisibility}
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select your country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {countryOptions.map((country) => (
-                            <SelectItem key={country.value} value={country.value}>
-                              {country.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {type === "login" ? "Signing in..." : "Creating account..."}
-                </div>
-              ) : type === "login" ? (
-                "Sign In"
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
               ) : (
-                "Create Account"
+                "Log in"
               )}
             </Button>
           </form>
         </Form>
+      ) : (
+        <Form {...registerForm}>
+          <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={registerForm.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Jeet" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={registerForm.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Grewal" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={registerForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={registerForm.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={registerForm.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your country" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem key={country} value={country}>
+                          {country}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Sign up"
+              )}
+            </Button>
+          </form>
+        </Form>
+      )}
 
-        <div className="text-center">
-          <p className="text-sm">
-            {type === "login"
-              ? "Don't have an account? "
-              : "Already have an account? "}
-            <Link
-              to={
-                type === "login"
-                  ? `/${selectedUserType}/register`
-                  : `/${selectedUserType}/login`
-              }
-              className="text-nexus-600 hover:underline"
-            >
-              {type === "login" ? "Sign up" : "Sign in"}
-            </Link>
-          </p>
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t"></span>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
         </div>
       </div>
-    </div>
+
+      <Button
+        variant="outline"
+        type="button"
+        className="w-full"
+        onClick={signInWithGoogle}
+        disabled={loading}
+      >
+        {loading ? (
+          <Loader className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <img
+            src="/placeholder.svg"
+            alt="Google"
+            className="mr-2 h-4 w-4"
+          />
+        )}
+        Google
+      </Button>
+
+      <div className="mt-6 text-center text-sm">
+        {type === "login" ? (
+          <p>
+            Don't have an account?{" "}
+            <Link
+              to={userType === "expert" ? "/expert/register" : "/student/register"}
+              className="font-medium text-nexus-600 hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        ) : (
+          <p>
+            Already have an account?{" "}
+            <Link
+              to={userType === "expert" ? "/expert/login" : "/student/login"}
+              className="font-medium text-nexus-600 hover:underline"
+            >
+              Log in
+            </Link>
+          </p>
+        )}
+      </div>
+    </>
   );
-}
+};

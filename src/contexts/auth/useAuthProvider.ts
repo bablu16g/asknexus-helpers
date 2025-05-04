@@ -74,7 +74,8 @@ export function useAuthProvider() {
           
           // Redirect to the appropriate dashboard if on login pages
           const currentPath = window.location.pathname;
-          if (currentPath === "/student/login" || currentPath === "/student/register" || currentPath === "/") {
+          if (currentPath === "/student/login" || currentPath === "/student/register" || 
+              currentPath === "/auth/callback" || currentPath === "/") {
             navigate("/dashboard");
           }
         }
@@ -95,10 +96,18 @@ export function useAuthProvider() {
             user_type: 'expert'
           });
           
-          // Redirect to the appropriate dashboard if on login pages
+          // Check if the expert needs to complete onboarding
+          const isNewExpert = !expertProfile.expertise || expertProfile.expertise.length === 0;
+          
+          // Redirect to the appropriate page based on onboarding status
           const currentPath = window.location.pathname;
-          if (currentPath === "/expert/login" || currentPath === "/expert/register" || currentPath === "/") {
-            navigate("/expert/dashboard");
+          if (currentPath === "/expert/login" || currentPath === "/expert/register" || 
+              currentPath === "/auth/callback" || currentPath === "/") {
+            if (isNewExpert) {
+              navigate("/expert/onboarding");
+            } else {
+              navigate("/expert/dashboard");
+            }
           }
         }
       }

@@ -28,8 +28,11 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Dashboard from "./pages/Dashboard";
 import ExpertDashboard from "./pages/ExpertDashboard";
+import ExpertOnboarding from "./pages/ExpertOnboarding";
 import AskQuestion from "./pages/AskQuestion";
 import MobileApp from "./pages/MobileApp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -55,6 +58,8 @@ const App = () => (
               <Route path="/student/register" element={<StudentRegister />} />
               <Route path="/expert/login" element={<ExpertLogin />} />
               <Route path="/expert/register" element={<ExpertRegister />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route 
                 path="/dashboard" 
                 element={
@@ -68,6 +73,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredUserType="expert">
                     <ExpertDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/expert/onboarding" 
+                element={
+                  <ProtectedRoute requiredUserType="expert">
+                    <ExpertOnboarding />
                   </ProtectedRoute>
                 } 
               />

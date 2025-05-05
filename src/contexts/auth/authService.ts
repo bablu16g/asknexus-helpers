@@ -64,7 +64,8 @@ export async function signInWithGoogle(userType: UserType = "student") {
           access_type: 'offline',
           prompt: 'consent',
         },
-        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
+        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`,
+        data: { user_type: userType } // Add user_type to user metadata
       }
     });
     
@@ -88,7 +89,8 @@ export async function signInWithFacebook(userType: UserType = "student") {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
+        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`,
+        data: { user_type: userType } // Add user_type to user metadata
       }
     });
     

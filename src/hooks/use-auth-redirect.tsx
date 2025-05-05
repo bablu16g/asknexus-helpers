@@ -54,12 +54,29 @@ export function useAuthRedirect() {
             } else {
               toast.success('Signed in successfully!');
               
-              // Redirect based on user_type in URL or path
+              // Retrieve user data to get the user type
+              const { data: userData } = await supabase.auth.getUser();
+              
+              // Determine user type from user metadata, URL parameter, or fallback to student
               const userTypeFromUrl = searchParams.get('user_type');
-              if (userTypeFromUrl === 'expert') {
-                navigate("/expert/onboarding");
+              const userTypeFromMetadata = userData?.user?.user_metadata?.user_type;
+              const effectiveUserType = userTypeFromUrl || userTypeFromMetadata || 'student';
+              
+              if (effectiveUserType === 'expert') {
+                // Check if expert has completed onboarding
+                const { data: expertData } = await supabase
+                  .from('expert_profiles')
+                  .select('expertise')
+                  .eq('id', userData?.user?.id)
+                  .single();
+                
+                if (expertData && expertData.expertise && expertData.expertise.length > 0) {
+                  navigate('/expert/dashboard');
+                } else {
+                  navigate('/expert/onboarding');
+                }
               } else {
-                navigate("/dashboard");
+                navigate('/dashboard');
               }
             }
           } catch (error) {

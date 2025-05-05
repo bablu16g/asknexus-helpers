@@ -55,7 +55,7 @@ export async function signUp(
   }
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(userType: UserType = "student") {
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -64,7 +64,7 @@ export async function signInWithGoogle() {
           access_type: 'offline',
           prompt: 'consent',
         },
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
       }
     });
     
@@ -83,12 +83,12 @@ export async function signInWithGoogle() {
   }
 }
 
-export async function signInWithFacebook() {
+export async function signInWithFacebook(userType: UserType = "student") {
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
       }
     });
     
@@ -118,6 +118,23 @@ export async function signOut() {
   } catch (error: any) {
     console.error("Error signing out:", error);
     toast.error("There was an error logging you out.");
+    return { error };
+  }
+}
+
+export async function forgotPassword(email: string) {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) throw error;
+    
+    toast.success("Password reset instructions sent to your email.");
+    return { error: null };
+  } catch (error: any) {
+    console.error("Error sending reset password email:", error);
+    toast.error(error.message || "There was an error sending the password reset email.");
     return { error };
   }
 }

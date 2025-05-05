@@ -27,9 +27,9 @@ export type ExpertProfile = {
   last_name: string | null;
   country: string | null;
   expertise: string[];
-  education?: string | null;
-  experience?: string | null;
-  bio?: string | null;
+  education: string | null; // Adding education field
+  experience: string | null; // Adding experience field
+  bio: string | null; // Adding bio field
   rating: number | null;
   total_earnings: number | null;
   is_active: boolean | null;

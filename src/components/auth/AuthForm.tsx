@@ -8,10 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth, UserType } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { forgotPassword } from "@/contexts/auth/authService";
+import { useState as useHookState } from "react";
+import OTPVerification from "./OTPVerification";
 
 interface AuthFormProps {
   type: "login" | "register";
@@ -26,17 +29,28 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  confirmPassword: z.string().min(8, { message: "Password must be at least 8 characters" }),
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
   country: z.string().min(1, { message: "Country is required" }),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export const AuthForm = ({ type, userType }: AuthFormProps) => {
-  const { signIn, signUp, signInWithGoogle, loading } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithFacebook, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [forgottenEmail, setForgottenEmail] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const navigate = useNavigate();
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -51,6 +65,7 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
       firstName: "",
       lastName: "",
       country: "",
@@ -70,6 +85,26 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
       data.lastName,
       data.country
     );
+    setRegisteredEmail(data.email);
+    setShowOTPVerification(true);
+  };
+
+  const handleForgotPassword = async () => {
+    setIsResettingPassword(true);
+    const { error } = await forgotPassword(forgottenEmail);
+    setIsResettingPassword(false);
+    if (!error) {
+      setShowForgotPassword(false);
+      loginForm.reset({
+        email: forgottenEmail,
+        password: "",
+      });
+    }
+  };
+
+  const handleOTPSuccess = () => {
+    setShowOTPVerification(false);
+    navigate(userType === "expert" ? "/expert/login" : "/student/login");
   };
 
   const countries = [
@@ -85,6 +120,65 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
     "Brazil",
     "South Africa",
   ].sort();
+
+  // Show OTP verification if registration was successful
+  if (showOTPVerification) {
+    return (
+      <OTPVerification 
+        email={registeredEmail} 
+        onSuccess={handleOTPSuccess} 
+        onCancel={() => setShowOTPVerification(false)} 
+      />
+    );
+  }
+
+  // Show forgot password form if requested
+  if (showForgotPassword) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-6">Reset Password</h2>
+        <p className="text-center text-sm text-muted-foreground">
+          Enter your email address and we'll send you instructions to reset your password.
+        </p>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              Email
+            </label>
+            <Input 
+              id="email" 
+              type="email" 
+              placeholder="Enter your email" 
+              value={forgottenEmail}
+              onChange={(e) => setForgottenEmail(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col space-y-2">
+            <Button 
+              onClick={handleForgotPassword} 
+              disabled={!forgottenEmail || isResettingPassword}
+            >
+              {isResettingPassword ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Reset Instructions"
+              )}
+            </Button>
+            <Button 
+              variant="link" 
+              onClick={() => setShowForgotPassword(false)}
+              className="px-0"
+            >
+              Back to login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -118,6 +212,55 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
             </TabsTrigger>
           </TabsList>
         </Tabs>
+      </div>
+
+      <div className="mb-6">
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full mb-3"
+          onClick={signInWithGoogle}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <img
+              src="/placeholder.svg"
+              alt="Google"
+              className="mr-2 h-4 w-4"
+            />
+          )}
+          Continue with Google
+        </Button>
+
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full"
+          onClick={signInWithFacebook}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <img
+              src="/placeholder.svg"
+              alt="Facebook"
+              className="mr-2 h-4 w-4"
+            />
+          )}
+          Continue with Facebook
+        </Button>
+      </div>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t"></span>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
+        </div>
       </div>
 
       {type === "login" ? (
@@ -161,9 +304,14 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
                     </div>
                   </FormControl>
                   <div className="text-right text-sm mt-1">
-                    <Link to="/forgot-password" className="hover:underline text-nexus-600">
+                    <Button 
+                      variant="link" 
+                      type="button" 
+                      className="p-0 h-auto text-nexus-600" 
+                      onClick={() => setShowForgotPassword(true)}
+                    >
                       Forgot password?
-                    </Link>
+                    </Button>
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -255,6 +403,34 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
             />
             <FormField
               control={registerForm.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm your password"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={registerForm.control}
               name="country"
               render={({ field }) => (
                 <FormItem>
@@ -290,34 +466,6 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
           </form>
         </Form>
       )}
-
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t"></span>
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-        </div>
-      </div>
-
-      <Button
-        variant="outline"
-        type="button"
-        className="w-full"
-        onClick={signInWithGoogle}
-        disabled={loading}
-      >
-        {loading ? (
-          <Loader className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <img
-            src="/placeholder.svg"
-            alt="Google"
-            className="mr-2 h-4 w-4"
-          />
-        )}
-        Google
-      </Button>
 
       <div className="mt-6 text-center text-sm">
         {type === "login" ? (

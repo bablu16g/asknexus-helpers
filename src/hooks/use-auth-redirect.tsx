@@ -15,6 +15,7 @@ export function useAuthRedirect() {
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
+      const userType = searchParams.get('user_type');
 
       if (accessToken && type === 'recovery') {
         try {
@@ -40,8 +41,7 @@ export function useAuthRedirect() {
         const hashParams = new URLSearchParams(location.hash.substring(1));
         const accessTokenHash = hashParams.get('access_token');
         const refreshTokenHash = hashParams.get('refresh_token');
-        const typeHash = hashParams.get('type');
-
+        
         if (accessTokenHash) {
           try {
             const { error } = await supabase.auth.setSession({
@@ -53,7 +53,14 @@ export function useAuthRedirect() {
               toast.error('Error signing in: ' + error.message);
             } else {
               toast.success('Signed in successfully!');
-              navigate('/dashboard');
+              
+              // Redirect based on user_type in URL or path
+              const userTypeFromUrl = searchParams.get('user_type');
+              if (userTypeFromUrl === 'expert') {
+                navigate("/expert/onboarding");
+              } else {
+                navigate("/dashboard");
+              }
             }
           } catch (error) {
             console.error('Error setting session from hash:', error);

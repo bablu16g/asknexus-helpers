@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { UserType, StudentProfile, ExpertProfile } from "./types";
 
@@ -13,6 +13,7 @@ export function useAuthProvider() {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // Set up auth state listener
@@ -46,16 +47,21 @@ export function useAuthProvider() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const fetchUserProfile = async (user: User) => {
     try {
+      // Check if there's a user_type parameter in the URL (for OAuth redirects)
+      const urlUserType = searchParams.get('user_type');
+      
+      // Get user metadata
       const userMetadata = user.user_metadata;
-      const userType = userMetadata?.user_type || 'student';
-      setUserType(userType as UserType);
+      // Determine user type from metadata or URL parameter
+      const userTypeValue = urlUserType || userMetadata?.user_type || 'student';
+      setUserType(userTypeValue as UserType);
       
       // Fetch the appropriate profile based on user type
-      if (userType === 'student') {
+      if (userTypeValue === 'student') {
         const { data, error } = await supabase
           .from("student_profiles")
           .select("*")
@@ -79,7 +85,7 @@ export function useAuthProvider() {
             navigate("/dashboard");
           }
         }
-      } else if (userType === 'expert') {
+      } else if (userTypeValue === 'expert') {
         const { data, error } = await supabase
           .from("expert_profiles")
           .select("*")
@@ -109,6 +115,10 @@ export function useAuthProvider() {
               navigate("/expert/dashboard");
             }
           }
+        } else {
+          // If no expert profile exists but user signed up as expert,
+          // redirect to onboarding
+          navigate("/expert/onboarding");
         }
       }
     } catch (error) {

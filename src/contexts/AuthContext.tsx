@@ -43,13 +43,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleSignInWithGoogle = async () => {
     auth.setLoading(true);
-    await signInWithGoogle();
+    // Pass the current userType to ensure proper redirection
+    const userType = window.location.pathname.includes('/expert') ? 'expert' : 'student';
+    await signInWithGoogle(userType);
     auth.setLoading(false);
   };
 
   const handleSignInWithFacebook = async () => {
     auth.setLoading(true);
-    await signInWithFacebook();
+    // Pass the current userType to ensure proper redirection
+    const userType = window.location.pathname.includes('/expert') ? 'expert' : 'student';
+    await signInWithFacebook(userType);
     auth.setLoading(false);
   };
 

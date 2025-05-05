@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ImageUploaderProps {
   onUpload: (url: string) => void;
@@ -39,6 +39,17 @@ export function ImageUploader({ onUpload }: ImageUploaderProps) {
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       
+      // First, check if bucket exists, if not create it
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const bucketExists = buckets?.some(bucket => bucket.name === 'question-images');
+      
+      if (!bucketExists) {
+        // Create the bucket if it doesn't exist
+        await supabase.storage.createBucket('question-images', {
+          public: true
+        });
+      }
+      
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
         .from('question-images')
@@ -52,18 +63,11 @@ export function ImageUploader({ onUpload }: ImageUploaderProps) {
         .getPublicUrl(data.path);
         
       onUpload(publicUrl);
-      toast({
-        title: "Success!",
-        description: "Image uploaded successfully."
-      });
+      toast.success("Image uploaded successfully.");
       
     } catch (error: any) {
       console.error('Error uploading image:', error);
-      toast({
-        variant: "destructive",
-        title: "Upload failed",
-        description: error.message || "Error uploading image"
-      });
+      toast.error(error.message || "Error uploading image");
     } finally {
       setUploading(false);
     }

@@ -13,7 +13,6 @@ import { Eye, EyeOff, Loader, Facebook, Mail } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { forgotPassword } from "@/contexts/auth/authService";
-import { useState as useHookState } from "react";
 import OTPVerification from "./OTPVerification";
 
 interface AuthFormProps {
@@ -107,6 +106,11 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
     navigate(userType === "expert" ? "/expert/login" : "/student/login");
   };
 
+  const handleOTPCancel = () => {
+    setShowOTPVerification(false);
+    // Don't automatically create the account when cancelled
+  };
+
   const countries = [
     "United States",
     "United Kingdom",
@@ -127,7 +131,7 @@ export const AuthForm = ({ type, userType }: AuthFormProps) => {
       <OTPVerification 
         email={registeredEmail} 
         onSuccess={handleOTPSuccess} 
-        onCancel={() => setShowOTPVerification(false)} 
+        onCancel={handleOTPCancel} 
       />
     );
   }

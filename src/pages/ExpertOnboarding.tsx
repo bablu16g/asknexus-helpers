@@ -91,6 +91,10 @@ const ExpertOnboarding = () => {
   const handleQualificationSubmit = async (data: QualificationFormValues) => {
     setLoading(true);
     try {
+      if (!user?.id) {
+        throw new Error("User ID is required");
+      }
+      
       // Save qualification data to database
       const { error } = await supabase
         .from("expert_profiles")
@@ -99,7 +103,7 @@ const ExpertOnboarding = () => {
           experience: data.experience,
           bio: data.bio,
         })
-        .eq("id", user?.id);
+        .eq("id", user.id);
 
       if (error) throw error;
       
@@ -140,6 +144,10 @@ const ExpertOnboarding = () => {
   const handleFinish = async () => {
     setLoading(true);
     try {
+      if (!user?.id) {
+        throw new Error("User ID is required");
+      }
+      
       // Update expert profile with approved subjects
       if (testResults.passed) {
         const { error } = await supabase
@@ -148,7 +156,7 @@ const ExpertOnboarding = () => {
             expertise: [currentTestSubject],
             is_active: true,
           })
-          .eq("id", user?.id);
+          .eq("id", user.id);
 
         if (error) throw error;
       }

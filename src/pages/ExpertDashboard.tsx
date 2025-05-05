@@ -1,4 +1,3 @@
-
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -103,68 +102,65 @@ const ExpertDashboard = () => {
                       </span>
                     </div>
                   </div>
-                  <Button variant="outline" onClick={signOut} className="border-white/30 hover:bg-white/10 text-white">
-                    Sign Out
-                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="earnings">Earnings</TabsTrigger>
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="dark:text-white">
+            <TabsList className="mb-6 dark:bg-gray-800 dark:text-white">
+              <TabsTrigger value="dashboard" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Dashboard</TabsTrigger>
+              <TabsTrigger value="questions" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Questions</TabsTrigger>
+              <TabsTrigger value="earnings" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Earnings</TabsTrigger>
             </TabsList>
             
             <TabsContent value="dashboard" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="hover:shadow-md transition-all duration-300">
+                <Card className="hover:shadow-md transition-all duration-300 dark:bg-gray-800 dark:text-white">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-nexus-600">
+                    <CardTitle className="flex items-center gap-2 text-nexus-600 dark:text-nexus-400">
                       <MessageSquare className="h-5 w-5" />
                       <span>{assignedQuestions.length}</span>
                     </CardTitle>
-                    <CardDescription>Assigned Questions</CardDescription>
+                    <CardDescription className="dark:text-gray-300">Assigned Questions</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground dark:text-gray-400">
                       Questions waiting for your expertise and insight
                     </p>
                   </CardContent>
                 </Card>
                 
-                <Card className="hover:shadow-md transition-all duration-300">
+                <Card className="hover:shadow-md transition-all duration-300 dark:bg-gray-800 dark:text-white">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-nexus-600">
+                    <CardTitle className="flex items-center gap-2 text-nexus-600 dark:text-nexus-400">
                       <DollarSign className="h-5 w-5" />
                       <span>$0.00</span>
                     </CardTitle>
-                    <CardDescription>Pending Earnings</CardDescription>
+                    <CardDescription className="dark:text-gray-300">Pending Earnings</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground dark:text-gray-400">
                       Answer more questions to increase your earnings
                     </p>
                   </CardContent>
                 </Card>
                 
-                <Card className="hover:shadow-md transition-all duration-300">
+                <Card className="hover:shadow-md transition-all duration-300 dark:bg-gray-800 dark:text-white">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-nexus-600">
+                    <CardTitle className="flex items-center gap-2 text-nexus-600 dark:text-nexus-400">
                       <ThumbsUp className="h-5 w-5" />
                       <span>New Expert</span>
                     </CardTitle>
-                    <CardDescription>Rating</CardDescription>
+                    <CardDescription className="dark:text-gray-300">Rating</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <div key={i} className="w-4 h-1 rounded-full bg-gray-200"></div>
+                        <div key={i} className="w-4 h-1 rounded-full bg-gray-200 dark:bg-gray-600"></div>
                       ))}
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-sm text-muted-foreground dark:text-gray-400 mt-2">
                       Earn ratings by helping students
                     </p>
                   </CardContent>

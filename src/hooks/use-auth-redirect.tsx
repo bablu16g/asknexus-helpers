@@ -54,29 +54,36 @@ export function useAuthRedirect() {
             } else {
               toast.success('Signed in successfully!');
               
-              // Retrieve user data to get the user type
+              // Get the user_type from URL params if available (from the OAuth redirect)
+              const userTypeFromUrl = searchParams.get('user_type');
+              
+              // Retrieve user data to determine the correct redirection
               const { data: userData } = await supabase.auth.getUser();
               
-              // Determine user type from user metadata, URL parameter, or fallback to student
-              const userTypeFromUrl = searchParams.get('user_type');
-              const userTypeFromMetadata = userData?.user?.user_metadata?.user_type;
-              const effectiveUserType = userTypeFromUrl || userTypeFromMetadata || 'student';
-              
-              if (effectiveUserType === 'expert') {
-                // Check if expert has completed onboarding
-                const { data: expertData } = await supabase
-                  .from('expert_profiles')
-                  .select('expertise')
-                  .eq('id', userData?.user?.id)
-                  .single();
+              if (userData?.user) {
+                // Get user type from (in order of priority):
+                // 1. URL parameter (set during OAuth redirect)
+                // 2. User metadata (if previously set)
+                // 3. Default to 'student'
+                const userMetadata = userData.user.user_metadata || {};
+                const effectiveUserType = userTypeFromUrl || userMetadata.user_type || 'student';
                 
-                if (expertData && expertData.expertise && expertData.expertise.length > 0) {
-                  navigate('/expert/dashboard');
+                if (effectiveUserType === 'expert') {
+                  // Check if expert has completed onboarding
+                  const { data: expertData } = await supabase
+                    .from('expert_profiles')
+                    .select('expertise')
+                    .eq('id', userData.user.id)
+                    .single();
+                  
+                  if (expertData && expertData.expertise && expertData.expertise.length > 0) {
+                    navigate('/expert/dashboard');
+                  } else {
+                    navigate('/expert/onboarding');
+                  }
                 } else {
-                  navigate('/expert/onboarding');
+                  navigate('/dashboard');
                 }
-              } else {
-                navigate('/dashboard');
               }
             }
           } catch (error) {

@@ -124,6 +124,12 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
     setOtp(value.slice(0, 6));
   };
 
+  const handleCancel = () => {
+    // Make sure onCancel doesn't create an account automatically
+    toast.info("Verification canceled. You can try again later.");
+    onCancel();
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -166,7 +172,7 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
         <div className="flex items-center justify-between w-full text-sm">
           <Button
             variant="link"
-            onClick={onCancel}
+            onClick={handleCancel}
             className="p-0 h-auto"
           >
             Try a different method

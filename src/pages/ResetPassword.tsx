@@ -29,11 +29,12 @@ const ResetPassword = () => {
       navigate("/forgot-password");
     } else {
       // Extract email from the URL or use the current user's email if available
-      const { data } = supabase.auth.getSession();
-      data.then(session => {
-        if (session && session.session?.user?.email) {
-          setEmail(session.session.user.email);
+      supabase.auth.getSession().then(({ data }) => {
+        if (data && data.session?.user?.email) {
+          setEmail(data.session.user.email);
         }
+      }).catch(error => {
+        console.error("Error getting session:", error);
       });
     }
   }, [navigate]);

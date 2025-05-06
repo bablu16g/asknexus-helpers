@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export type Question = {
@@ -144,32 +145,19 @@ export async function getQuestionAssignments(expertId: string) {
 }
 
 export async function updateExpertStatus(isOnline: boolean) {
-  const { data: user } = await supabase.auth.getUser();
+  const { data: userData } = await supabase.auth.getUser();
   
-  if (!user.user) {
+  if (!userData.user) {
     throw new Error("User not authenticated");
   }
   
-  // If setting status to online, don't allow it to go offline automatically
-  // This means we keep the user online until they manually set it to offline
-  if (isOnline) {
-    return supabase
-      .from("expert_profiles")
-      .update({
-        is_online: isOnline,
-        is_active: isOnline,
-        last_active: new Date().toISOString(),
-      })
-      .eq("id", user.user.id);
-  } else {
-    // Only if the user is manually setting status to offline
-    return supabase
-      .from("expert_profiles")
-      .update({
-        is_online: isOnline,
-        is_active: isOnline,
-        last_active: new Date().toISOString(),
-      })
-      .eq("id", user.user.id);
-  }
+  // Update is_online and is_active status
+  return supabase
+    .from("expert_profiles")
+    .update({
+      is_online: isOnline,
+      is_active: isOnline,
+      last_active: new Date().toISOString(),
+    })
+    .eq("id", userData.user.id);
 }

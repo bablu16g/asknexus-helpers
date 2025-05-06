@@ -23,6 +23,8 @@ export function ImageUploader({ onUpload }: ImageUploaderProps) {
       
       const file = e.target.files[0];
       const fileExt = file.name.split('.').pop();
+      
+      // Make sure to upload to the specific folder structure requested
       const filePath = `student-questions/${Math.random()}-${Date.now()}.${fileExt}`;
       
       // Check file size (limit to 5MB)

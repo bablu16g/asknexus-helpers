@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { UserType } from "./types";
 import { toast } from "sonner";
@@ -62,10 +63,9 @@ export async function signInWithGoogle(userType: UserType = "student") {
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
-          // Always set user_type to student for Google logins
-          user_type: 'student' 
         },
-        redirectTo: `${window.location.origin}/auth/callback?user_type=student`
+        // Update this to route to student dashboard by default for simplicity
+        redirectTo: `${window.location.origin}/dashboard?user_type=${userType}`
       }
     });
     
@@ -89,11 +89,9 @@ export async function signInWithFacebook(userType: UserType = "student") {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        queryParams: {
-          // Always set user_type to student for Facebook logins
-          user_type: 'student' 
-        },
-        redirectTo: `${window.location.origin}/auth/callback?user_type=student`
+        queryParams: {},
+        // Update this to route to student dashboard by default for simplicity
+        redirectTo: `${window.location.origin}/dashboard?user_type=${userType}`
       }
     });
     

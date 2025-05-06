@@ -95,14 +95,15 @@ const ExpertOnboarding = () => {
         throw new Error("User ID is required");
       }
       
-      // Save qualification data to database
+      // Save qualification data to database using raw query to work around TypeScript limitations
+      // We're using this approach because the types haven't been updated to match the database schema
       const { error } = await supabase
         .from("expert_profiles")
         .update({
           education: data.education,
           experience: data.experience,
-          bio: data.bio,
-        })
+          bio: data.bio
+        } as any)
         .eq("id", user.id);
 
       if (error) throw error;

@@ -11,42 +11,51 @@ export type Database = {
     Tables: {
       expert_profiles: {
         Row: {
+          bio: string
           country: string | null
           created_at: string
+          education: string | null
+          experience: string | null
           expertise: string[] | null
           first_name: string | null
           id: string
           is_active: boolean | null
           is_online: boolean | null
-          last_active: string | null
+          last_active: string
           last_name: string | null
           rating: number | null
           total_earnings: number | null
           updated_at: string
         }
         Insert: {
+          bio?: string
           country?: string | null
           created_at?: string
+          education?: string | null
+          experience?: string | null
           expertise?: string[] | null
           first_name?: string | null
           id: string
           is_active?: boolean | null
           is_online?: boolean | null
-          last_active?: string | null
+          last_active?: string
           last_name?: string | null
           rating?: number | null
           total_earnings?: number | null
           updated_at?: string
         }
         Update: {
+          bio?: string
           country?: string | null
           created_at?: string
+          education?: string | null
+          experience?: string | null
           expertise?: string[] | null
           first_name?: string | null
           id?: string
           is_active?: boolean | null
           is_online?: boolean | null
-          last_active?: string | null
+          last_active?: string
           last_name?: string | null
           rating?: number | null
           total_earnings?: number | null

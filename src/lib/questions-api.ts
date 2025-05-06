@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export type Question = {
@@ -24,7 +23,8 @@ export async function createQuestion(
     throw new Error("User not authenticated");
   }
   
-  const { data, error } = await supabase
+  // Create the question
+  const { data: questionData, error: questionError } = await supabase
     .from("questions")
     .insert({
       title,
@@ -35,9 +35,39 @@ export async function createQuestion(
     })
     .select();
     
-  if (error) throw error;
+  if (questionError) throw questionError;
   
-  return data;
+  // Get online experts
+  const { data: onlineExperts, error: expertsError } = await supabase
+    .from("expert_profiles")
+    .select("id")
+    .eq("is_online", true)
+    .eq("is_active", true);
+    
+  if (expertsError) throw expertsError;
+  
+  // If there are online experts, assign the question to one of them
+  if (onlineExperts && onlineExperts.length > 0) {
+    // Randomly select an expert (for load balancing)
+    const selectedExpertIndex = Math.floor(Math.random() * onlineExperts.length);
+    const selectedExpert = onlineExperts[selectedExpertIndex];
+    
+    // Create question assignment
+    const { error: assignmentError } = await supabase
+      .from("question_assignments")
+      .insert({
+        question_id: questionData[0].id,
+        expert_id: selectedExpert.id,
+        status: "assigned"
+      });
+      
+    if (assignmentError) {
+      console.error("Error assigning question:", assignmentError);
+      // The question is still created even if assignment fails
+    }
+  }
+  
+  return questionData;
 }
 
 export async function getQuestions() {
@@ -120,12 +150,26 @@ export async function updateExpertStatus(isOnline: boolean) {
     throw new Error("User not authenticated");
   }
   
-  return supabase
-    .from("expert_profiles")
-    .update({
-      is_online: isOnline,
-      is_active: isOnline,
-      last_active: new Date().toISOString(),
-    })
-    .eq("id", user.user.id);
+  // If setting status to online, don't allow it to go offline automatically
+  // This means we keep the user online until they manually set it to offline
+  if (isOnline) {
+    return supabase
+      .from("expert_profiles")
+      .update({
+        is_online: isOnline,
+        is_active: isOnline,
+        last_active: new Date().toISOString(),
+      })
+      .eq("id", user.user.id);
+  } else {
+    // Only if the user is manually setting status to offline
+    return supabase
+      .from("expert_profiles")
+      .update({
+        is_online: isOnline,
+        is_active: isOnline,
+        last_active: new Date().toISOString(),
+      })
+      .eq("id", user.user.id);
+  }
 }

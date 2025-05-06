@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { UserType } from "./types";
 import { toast } from "sonner";
@@ -40,7 +39,7 @@ export async function signUp(
           last_name: lastName,
           country: country
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`
+        // Remove emailRedirectTo to ensure OTP verification is used
       }
     });
     
@@ -63,9 +62,10 @@ export async function signInWithGoogle(userType: UserType = "student") {
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
-          user_type: userType // Add as a query param to pass through URL
+          // Always set user_type to student for Google logins
+          user_type: 'student' 
         },
-        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
+        redirectTo: `${window.location.origin}/auth/callback?user_type=student`
       }
     });
     
@@ -90,9 +90,10 @@ export async function signInWithFacebook(userType: UserType = "student") {
       provider: 'facebook',
       options: {
         queryParams: {
-          user_type: userType // Add as a query param to pass through URL
+          // Always set user_type to student for Facebook logins
+          user_type: 'student' 
         },
-        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
+        redirectTo: `${window.location.origin}/auth/callback?user_type=student`
       }
     });
     
@@ -128,9 +129,7 @@ export async function signOut() {
 
 export async function forgotPassword(email: string) {
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
     
     if (error) throw error;
     

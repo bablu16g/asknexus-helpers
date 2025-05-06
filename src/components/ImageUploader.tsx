@@ -23,7 +23,7 @@ export function ImageUploader({ onUpload }: ImageUploaderProps) {
       
       const file = e.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const filePath = `${Math.random()}-${Date.now()}.${fileExt}`;
+      const filePath = `student-questions/${Math.random()}-${Date.now()}.${fileExt}`;
       
       // Check file size (limit to 5MB)
       if (file.size > 5 * 1024 * 1024) {
@@ -39,27 +39,16 @@ export function ImageUploader({ onUpload }: ImageUploaderProps) {
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       
-      // First, check if bucket exists, if not create it
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const bucketExists = buckets?.some(bucket => bucket.name === 'question-images');
-      
-      if (!bucketExists) {
-        // Create the bucket if it doesn't exist
-        await supabase.storage.createBucket('question-images', {
-          public: true
-        });
-      }
-      
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage - using asknexus bucket
       const { data, error } = await supabase.storage
-        .from('question-images')
+        .from('asknexus')
         .upload(filePath, file);
         
       if (error) throw error;
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('question-images')
+        .from('asknexus')
         .getPublicUrl(data.path);
         
       onUpload(publicUrl);

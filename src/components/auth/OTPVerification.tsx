@@ -125,13 +125,12 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
   };
 
   const handleCancel = () => {
-    // Make sure onCancel doesn't create an account automatically
-    toast.info("Verification canceled. You can try again later.");
+    // Make sure we don't automatically create the account when canceling
     onCancel();
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-md mx-auto border-0 shadow-none">
       <CardHeader>
         <CardTitle className="text-xl">Email Verification</CardTitle>
         <CardDescription>
@@ -193,6 +192,6 @@ const OTPVerification = ({ email, onSuccess, onCancel }: OTPVerificationProps) =
       </CardFooter>
     </Card>
   );
-};
+}
 
 export default OTPVerification;

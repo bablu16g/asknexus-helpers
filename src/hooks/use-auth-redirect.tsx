@@ -61,28 +61,39 @@ export function useAuthRedirect() {
               const { data: userData } = await supabase.auth.getUser();
               
               if (userData?.user) {
-                // Get user type from (in order of priority):
-                // 1. URL parameter (set during OAuth redirect)
-                // 2. User metadata (if previously set)
-                // 3. Default to 'student'
-                const userMetadata = userData.user.user_metadata || {};
-                const effectiveUserType = userTypeFromUrl || userMetadata.user_type || 'student';
+                // Default all OAuth logins to 'student' unless explicitly set as 'expert'
+                // This ensures users from Google/Facebook are always directed to student dashboard
+                const oauthLoginUserType = 'student'; 
                 
-                if (effectiveUserType === 'expert') {
-                  // Check if expert has completed onboarding
-                  const { data: expertData } = await supabase
-                    .from('expert_profiles')
-                    .select('expertise')
-                    .eq('id', userData.user.id)
-                    .single();
-                  
-                  if (expertData && expertData.expertise && expertData.expertise.length > 0) {
-                    navigate('/expert/dashboard');
-                  } else {
-                    navigate('/expert/onboarding');
-                  }
-                } else {
+                // Update user metadata to ensure they're marked as a student
+                if (userData?.user?.app_metadata?.provider === 'google' || 
+                    userData?.user?.app_metadata?.provider === 'facebook') {
+                  // For OAuth logins, always set as student
+                  await supabase.auth.updateUser({
+                    data: { user_type: oauthLoginUserType }
+                  });
                   navigate('/dashboard');
+                } else {
+                  // For email logins, respect their chosen user type
+                  const userMetadata = userData.user.user_metadata || {};
+                  const effectiveUserType = userMetadata.user_type || 'student';
+                  
+                  if (effectiveUserType === 'expert') {
+                    // Check if expert has completed onboarding
+                    const { data: expertData } = await supabase
+                      .from('expert_profiles')
+                      .select('expertise')
+                      .eq('id', userData.user.id)
+                      .single();
+                    
+                    if (expertData && expertData.expertise && expertData.expertise.length > 0) {
+                      navigate('/expert/dashboard');
+                    } else {
+                      navigate('/expert/onboarding');
+                    }
+                  } else {
+                    navigate('/dashboard');
+                  }
                 }
               }
             }

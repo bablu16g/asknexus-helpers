@@ -8,14 +8,21 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import OTPVerification from "@/components/auth/OTPVerification";
+import { Eye, EyeOff } from "lucide-react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -28,13 +35,53 @@ const ForgotPassword = () => {
         throw error;
       }
       
-      setIsSubmitted(true);
-      toast.success("Reset password link sent to your email!");
+      setIsOtpSent(true);
+      toast.success("Verification code sent to your email!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to send reset instructions");
+      toast.error(error.message || "Failed to send verification code");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleOtpSuccess = () => {
+    setIsVerified(true);
+    toast.success("Email verified successfully!");
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        throw error;
+      }
+      
+      toast.success("Password has been reset successfully!");
+      navigate("/student/login");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to reset password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelOTP = () => {
+    setIsOtpSent(false);
   };
 
   return (
@@ -45,21 +92,17 @@ const ForgotPassword = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Reset your password</CardTitle>
             <CardDescription>
-              Enter your email address and we'll send you a link to reset your password.
+              {!isOtpSent 
+                ? "Enter your email address and we'll send you a verification code." 
+                : isVerified 
+                  ? "Create your new password" 
+                  : "Enter the verification code sent to your email"
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isSubmitted ? (
-              <div className="text-center space-y-4">
-                <p className="mb-4">
-                  Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your spam folder.
-                </p>
-                <Button onClick={() => navigate("/student/login")} variant="outline" className="w-full">
-                  Return to login
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+            {!isOtpSent ? (
+              <form onSubmit={handleSendOTP} className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="email" className="block text-sm font-medium">
                     Email address
@@ -75,7 +118,7 @@ const ForgotPassword = () => {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Sending..." : "Send reset instructions"}
+                  {isLoading ? "Sending..." : "Send verification code"}
                 </Button>
                 <div className="text-center">
                   <Button
@@ -87,6 +130,70 @@ const ForgotPassword = () => {
                     Back to login
                   </Button>
                 </div>
+              </form>
+            ) : !isVerified ? (
+              <OTPVerification 
+                email={email} 
+                onSuccess={handleOtpSuccess} 
+                onCancel={handleCancelOTP}
+              />
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="password" className="block text-sm font-medium">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your new password"
+                      required
+                      className="w-full pr-10"
+                      minLength={8}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your new password"
+                      required
+                      className="w-full pr-10"
+                      minLength={8}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Resetting..." : "Reset Password"}
+                </Button>
               </form>
             )}
           </CardContent>

@@ -64,8 +64,8 @@ export async function signInWithGoogle(userType: UserType = "student") {
           access_type: 'offline',
           prompt: 'consent',
         },
-        // Update this to route to student dashboard by default for simplicity
-        redirectTo: `${window.location.origin}/dashboard?user_type=${userType}`
+        // Route to appropriate dashboard based on user type
+        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
       }
     });
     
@@ -90,8 +90,8 @@ export async function signInWithFacebook(userType: UserType = "student") {
       provider: 'facebook',
       options: {
         queryParams: {},
-        // Update this to route to student dashboard by default for simplicity
-        redirectTo: `${window.location.origin}/dashboard?user_type=${userType}`
+        // Route to appropriate dashboard based on user type
+        redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`
       }
     });
     
